@@ -1,0 +1,26 @@
+name: calculadora_consumo_app
+description: Una app Flutter para registrar repostajes de coche con almacenamiento local.
+publish_to: 'none'
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+  flutter: '>=3.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.0
+  sqflite: ^2.2.8
+  path_provider: ^2.0.16
+  path: ^1.8.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  excel: ^2.0.0
+  sqlite3: ^2.1.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/repostajes.db
