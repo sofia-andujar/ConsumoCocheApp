@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/refuel_provider.dart';
@@ -61,6 +62,32 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     });
   }
 
+  Future<void> _confirmDeleteAll(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Eliminar todos'),
+          content: const Text('¿Estás seguro de que deseas eliminar todos los registros? Esta acción no se puede deshacer.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      await ref.read(refuelListProvider.notifier).deleteAllRefuels();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final refuelState = ref.watch(refuelListProvider);
@@ -68,6 +95,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Historial'),
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.black,
+          statusBarIconBrightness: Brightness.light,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -200,6 +231,33 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: refuelState.maybeWhen(
+          data: (refuels) {
+            return ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
+              icon: const Icon(Icons.delete_forever),
+              label: const Text('Eliminar todos los registros'),
+              onPressed: refuels.isNotEmpty
+                  ? () => _confirmDeleteAll(context)
+                  : null,
+            );
+          },
+          orElse: () => ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            icon: const Icon(Icons.delete_forever),
+            label: const Text('Eliminar todos los registros'),
+            onPressed: null,
+          ),
+        ),
       ),
     );
   }

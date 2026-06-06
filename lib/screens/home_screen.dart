@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 import '../widgets/add_refuel_form.dart';
 import 'history_screen.dart';
+import 'settings_screen.dart';
 import 'package:intl/intl.dart';
 
 final format = NumberFormat("#,##0.00", "es_ES");
@@ -29,6 +31,16 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('CONSUMO MAZDA 2 SOFIA'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, SettingsScreen.routeName),
+          ),
+        ],
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.black,
+          statusBarIconBrightness: Brightness.light,
+        ),
       ),
       body: refuelState.when(
         loading: () => const Center(child: CircularProgressIndicator()),

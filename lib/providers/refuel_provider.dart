@@ -48,4 +48,13 @@ class RefuelListNotifier extends StateNotifier<AsyncValue<List<Refuel>>> {
       state = AsyncValue.error(error, stack);
     }
   }
+
+  Future<void> deleteAllRefuels() async {
+    try {
+      await RefuelDatabase.instance.deleteAllRefuels();
+      await _loadRefuels();
+    } catch (error, stack) {
+      state = AsyncValue.error(error, stack);
+    }
+  }
 }

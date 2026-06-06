@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/refuel.dart';
 import '../widgets/add_refuel_form.dart';
 
@@ -12,7 +13,13 @@ class AddRefuelScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(refuel != null ? 'Editar repostaje' : 'Añadir repostaje')),
+      appBar: AppBar(
+        title: Text(refuel != null ? 'Editar repostaje' : 'Añadir repostaje'),
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.black,
+          statusBarIconBrightness: Brightness.light,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(

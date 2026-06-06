@@ -86,6 +86,11 @@ class RefuelDatabase {
     );
   }
 
+  Future<int> deleteAllRefuels() async {
+    final db = await database;
+    return await db.delete(_tableRefuels);
+  }
+
   Future<int> updateRefuel(Refuel refuel) async {
     final db = await database;
     return await db.update(
