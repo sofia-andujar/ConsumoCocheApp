@@ -12,6 +12,6 @@ import 'package:calculadora_consumo_app/app.dart';
 void main() {
   testWidgets('App loads without errors', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: GasApp()));
-    expect(find.text('Historial'), findsOneWidget);
+    expect(find.text('Consumo Mazda 2 Sofía'), findsOneWidget);
   });
 }

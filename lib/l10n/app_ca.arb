@@ -1,0 +1,141 @@
+{
+  "@@locale": "ca",
+
+  "appTitle": "Consum Mazda 2 Sofia",
+
+  "errorPrefix": "Error: {error}",
+
+  "averageConsumption": "Consum mitjà",
+
+  "addAtLeastOneRefuel": "Afegeix almenys 1 repostatge",
+
+  "addRefuel": "Afegir repostatge",
+
+  "refuelAddedSuccessfully": "Repostatge afegit correctament",
+
+  "reset": "Restablir",
+
+  "resetZoom": "Restablir zoom",
+
+  "history": "Historial",
+
+  "sort": "Ordenar",
+
+  "sortDate": "Data",
+
+  "sortConsumption": "Consum",
+
+  "sortDistance": "Distància",
+
+  "sortLiters": "Litres",
+
+  "filterByDate": "Filtrar per data",
+
+  "dateFrom": "Des de",
+
+  "dateTo": "Fins a",
+
+  "selectDate": "Seleccionar",
+
+  "clear": "Netejar",
+
+  "apply": "Aplicar",
+
+  "noRefuelsRegistered": "No hi ha repostatges registrats.",
+
+  "noRefuelsInRange": "No hi ha repostatges en aquest rang de dates.",
+
+  "deleteAll": "Eliminar tots",
+
+  "confirmDeleteAll": "Estàs segur que vols eliminar tots els registres? Aquesta acció no es pot desfer.",
+
+  "cancel": "Cancel·lar",
+
+  "delete": "Eliminar",
+
+  "deletedRecords": "Eliminats {count} registres",
+
+  "undo": "Desfer",
+
+  "deleteRefuel": "Eliminar repostatge",
+
+  "confirmDeleteRefuel": "Eliminar el repostatge del {date} ({consumption} L/100km)?",
+
+  "refuelDeleted": "Repostatge eliminat",
+
+  "deleteAllRecords": "Eliminar tots els registres",
+
+  "editRefuel": "Editar repostatge",
+
+  "date": "Data",
+
+  "distanceKm": "Distància (km)",
+
+  "required": "Requerit",
+
+  "invalid": "Invàlid",
+
+  "mustBeGreaterThanZero": "Ha de ser > 0",
+
+  "liters": "Litres",
+
+  "commentOptional": "Comentari (opcional)",
+
+  "addNote": "Afegeix una nota",
+
+  "update": "Actualitzar",
+
+  "save": "Desar",
+
+  "enterDistance": "Introdueix la distància del trajecte",
+
+  "invalidNumericValue": "Valor numèric invàlid",
+
+  "mustBeGreaterThanZeroFull": "Ha de ser major que 0",
+
+  "litersRefueled": "Litres repostats",
+
+  "enterLiters": "Introdueix els litres",
+
+  "addNoteFull": "Afegeix una nota sobre aquest repostatge",
+
+  "saveRefuel": "Desar repostatge",
+
+  "deleteRefuelTooltip": "Eliminar repostatge",
+
+  "editRefuelTooltip": "Editar repostatge",
+
+  "addRefuelsToSeeChart": "Afegeix repostatges per veure l'evolució del consum.",
+
+  "consumptionEvolution": "Evolució consum",
+
+  "legendConsumption": "Consum",
+
+  "legendMean": "Mitjana",
+
+  "legendAo5": "Mitj5",
+
+  "noVisibleLines": "No hi ha línies visibles. Toca una llegenda per mostrar-la.",
+
+  "customizeTheme": "Personalitzar tema",
+
+  "accentColor": "Color d'accent",
+
+  "visualMode": "Mode visual",
+
+  "lightMode": "Clar",
+
+  "darkMode": "Fosc",
+
+  "systemMode": "Sistema",
+
+  "settingsPersist": "Els canvis es desen i persisteixen entre sessions.",
+
+  "language": "Idioma",
+
+  "spanish": "Español",
+
+  "english": "English",
+
+  "catalan": "Català"
+}

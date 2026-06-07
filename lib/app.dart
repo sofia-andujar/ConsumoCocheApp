@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'l10n/app_localizations.dart';
+import 'providers/locale_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/add_refuel_screen.dart';
 import 'screens/home_screen.dart';
@@ -13,6 +15,7 @@ class GasApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(themeSettingsProvider);
+    final locale = ref.watch(localeProvider);
     final themeMode = switch (settings.brightnessMode) {
       BrightnessMode.light => ThemeMode.light,
       BrightnessMode.dark => ThemeMode.dark,
@@ -21,6 +24,9 @@ class GasApp extends ConsumerWidget {
 
     return MaterialApp(
       title: 'CONSUMO MAZDA 2 SOFIA',
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       theme: AppTheme.lightTheme(settings.accentColor),
       darkTheme: AppTheme.darkTheme(settings.accentColor),
       themeMode: themeMode,
@@ -32,11 +38,12 @@ class GasApp extends ConsumerWidget {
         SettingsScreen.routeName: (context) => const SettingsScreen(),
       },
       builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(
-          isDark
-              ? SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent)
-              : SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+          const SystemUiOverlayStyle(
+            statusBarColor: Colors.black,
+            statusBarIconBrightness: Brightness.light,
+            statusBarBrightness: Brightness.dark,
+          ),
         );
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

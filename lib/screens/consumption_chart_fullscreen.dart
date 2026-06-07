@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../widgets/consumption_chart.dart';
 
@@ -31,7 +32,7 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
   }
 
   void _initViewport() {
@@ -66,16 +67,17 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Evolución consumo'),
+        title: Text(l10n.consumptionEvolution),
       ),
       body: SafeArea(
         child: GestureDetector(
@@ -137,7 +139,7 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
                     child: FilledButton.tonalIcon(
                       onPressed: _resetViewport,
                       icon: const Icon(Icons.refresh, size: 18),
-                      label: const Text('Restablecer zoom'),
+                      label: Text(l10n.resetZoom),
                     ),
                   ),
                 ),

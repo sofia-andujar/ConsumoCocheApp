@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
-
-
-// This widget represents a single refuel entry in the list on the home screen.
-// It displays the date, kilometers, and liters of a refuel, and includes a delete button to remove the entry.
 
 class RefuelTile extends StatelessWidget {
   final Refuel refuel;
@@ -18,12 +15,12 @@ class RefuelTile extends StatelessWidget {
     this.onEdit,
   });
 
-
   @override
   Widget build(BuildContext context) {
-    final dateText = DateFormat.yMMMd().format(refuel.date);
-    final format = NumberFormat("#,##0.00", "es_ES");
-
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final dateText = DateFormat.yMMMd(locale).format(refuel.date);
+    final format = NumberFormat("#,##0.00", locale);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -34,7 +31,6 @@ class RefuelTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Left: date (top) and consumption (below)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +42,6 @@ class RefuelTile extends StatelessWidget {
                   ),
                 ),
 
-                // Center: kilometers and liters
                 Expanded (
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -58,22 +53,20 @@ class RefuelTile extends StatelessWidget {
                   )
                 ),
                 
-                // Right: action icons (edit, delete)
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   color: Theme.of(context).colorScheme.error,
-                  tooltip: 'Eliminar repostaje',
+                  tooltip: l10n.deleteRefuelTooltip,
                   onPressed: onDelete,
                 ),
 
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
-                  tooltip: 'Editar repostaje',
+                  tooltip: l10n.editRefuelTooltip,
                   onPressed: onEdit,
                 ),
               ],
             ),
-            // Comment section (shown only if not empty)
             if (refuel.comment.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(

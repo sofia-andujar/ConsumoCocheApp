@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/refuel_provider.dart';
+import '../models/refuel.dart';
 import '../widgets/refuel_tile.dart';
 import 'add_refuel_screen.dart';
 
-// This class controls what is displayed on the history screen, which shows the list of refuels and allows editing/deleting them
+enum SortField { date, consumption, distance, liters }
+
+enum SortDirection { ascending, descending }
 
 class HistoryScreen extends ConsumerStatefulWidget {
   static const routeName = '/history';
@@ -20,6 +24,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   bool _showFilter = false;
+  SortField _sortField = SortField.date;
+  SortDirection _sortDirection = SortDirection.descending;
 
   Future<void> _selectStartDate(BuildContext context) async {
     final now = DateTime.now();
@@ -61,21 +67,31 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     });
   }
 
+  void _toggleSortDirection() {
+    setState(() {
+      _sortDirection = _sortDirection == SortDirection.ascending
+          ? SortDirection.descending
+          : SortDirection.ascending;
+    });
+  }
+
   Future<void> _confirmDeleteAll(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Eliminar todos'),
-          content: const Text('¿Estás seguro de que deseas eliminar todos los registros? Esta acción no se puede deshacer.'),
+          title: Text(l10n.deleteAll),
+          content: Text(l10n.confirmDeleteAll),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Eliminar'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -83,18 +99,169 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     );
 
     if (result == true) {
+      final refuels = ref.read(refuelListProvider).valueOrNull ?? [];
       await ref.read(refuelListProvider.notifier).deleteAllRefuels();
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.deletedRecords(refuels.length)),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () async {
+                for (final r in refuels) {
+                  await ref.read(refuelListProvider.notifier).restoreRefuel(r);
+                }
+              },
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDeleteSingle(BuildContext context, Refuel item) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final date = DateFormat.yMMMd(locale).format(item.date);
+        return AlertDialog(
+          title: Text(l10n.deleteRefuel),
+          content: Text(
+            l10n.confirmDeleteRefuel(date, item.consumptionLPer100Km.toStringAsFixed(2)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      await ref.read(refuelListProvider.notifier).deleteRefuel(item.id!);
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.refuelDeleted),
+            action: SnackBarAction(
+              label: l10n.undo,
+              onPressed: () {
+                ref.read(refuelListProvider.notifier).restoreRefuel(item);
+              },
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  List<Refuel> _applySortAndFilter(List<Refuel> refuels) {
+    var result = refuels.where((refuel) {
+      if (_startDate != null && refuel.date.isBefore(_startDate!)) {
+        return false;
+      }
+      if (_endDate != null) {
+        final endOfDay = _endDate!.add(const Duration(days: 1));
+        if (refuel.date.isAfter(endOfDay)) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+
+    result.sort((a, b) {
+      int cmp;
+      switch (_sortField) {
+        case SortField.date:
+          cmp = a.date.compareTo(b.date);
+          break;
+        case SortField.consumption:
+          cmp = a.consumptionLPer100Km.compareTo(b.consumptionLPer100Km);
+          break;
+        case SortField.distance:
+          cmp = a.kilometers.compareTo(b.kilometers);
+          break;
+        case SortField.liters:
+          cmp = a.liters.compareTo(b.liters);
+          break;
+      }
+      return _sortDirection == SortDirection.ascending ? cmp : -cmp;
+    });
+
+    return result;
+  }
+
+  String _sortFieldLabel(SortField field, AppLocalizations l10n) {
+    switch (field) {
+      case SortField.date:
+        return l10n.sortDate;
+      case SortField.consumption:
+        return l10n.sortConsumption;
+      case SortField.distance:
+        return l10n.sortDistance;
+      case SortField.liters:
+        return l10n.sortLiters;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final refuelState = ref.watch(refuelListProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Historial'),
+        title: Text(l10n.history),
         actions: [
+          PopupMenuButton<SortField>(
+            icon: Icon(
+              _sortDirection == SortDirection.descending
+                  ? Icons.arrow_downward
+                  : Icons.arrow_upward,
+            ),
+            tooltip: l10n.sort,
+            onSelected: (field) {
+              if (_sortField == field) {
+                _toggleSortDirection();
+              } else {
+                setState(() {
+                  _sortField = field;
+                  _sortDirection = SortDirection.descending;
+                });
+              }
+            },
+            itemBuilder: (context) => SortField.values.map((field) {
+              final isSelected = _sortField == field;
+              return CheckedPopupMenuItem<SortField>(
+                value: field,
+                checked: isSelected,
+                child: Row(
+                  children: [
+                    Text(_sortFieldLabel(field, l10n)),
+                    if (isSelected) ...[
+                      const Spacer(),
+                      Icon(
+                        _sortDirection == SortDirection.ascending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        size: 16,
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () => setState(() {
@@ -119,7 +286,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Filtrar por fecha',
+                    l10n.filterByDate,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -129,14 +296,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         child: InkWell(
                           onTap: () => _selectStartDate(context),
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Desde',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: l10n.dateFrom,
+                              border: const OutlineInputBorder(),
                             ),
                             child: Text(
                               _startDate != null
-                                  ? DateFormat.yMMMd().format(_startDate!)
-                                  : 'Seleccionar',
+                                  ? DateFormat.yMMMd(locale).format(_startDate!)
+                                  : l10n.selectDate,
                             ),
                           ),
                         ),
@@ -146,14 +313,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         child: InkWell(
                           onTap: () => _selectEndDate(context),
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Hasta',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: l10n.dateTo,
+                              border: const OutlineInputBorder(),
                             ),
                             child: Text(
                               _endDate != null
-                                  ? DateFormat.yMMMd().format(_endDate!)
-                                  : 'Seleccionar',
+                                  ? DateFormat.yMMMd(locale).format(_endDate!)
+                                  : l10n.selectDate,
                             ),
                           ),
                         ),
@@ -166,13 +333,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     children: [
                       TextButton(
                         onPressed: _clearFilters,
-                        child: const Text('Limpiar'),
+                        child: Text(l10n.clear),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
                         onPressed: () => setState(() => _showFilter = false),
                         icon: const Icon(Icons.check),
-                        label: const Text('Aplicar'),
+                        label: Text(l10n.apply),
                       ),
                     ],
                   ),
@@ -182,42 +349,40 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           Expanded(
             child: refuelState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) => Center(child: Text(l10n.errorPrefix(e.toString()))),
               data: (refuels) {
                 if (refuels.isEmpty) {
-                  return const Center(child: Text('No hay repostajes registrados.'));
+                  return Center(
+                    child: Text(l10n.noRefuelsRegistered),
+                  );
                 }
 
-                final filteredRefuels = refuels.where((refuel) {
-                  if (_startDate != null && refuel.date.isBefore(_startDate!)) {
-                    return false;
-                  }
-                  if (_endDate != null) {
-                    final endOfDay = _endDate!.add(const Duration(days: 1));
-                    if (refuel.date.isAfter(endOfDay)) {
-                      return false;
-                    }
-                  }
-                  return true;
-                }).toList();
+                final filteredRefuels = _applySortAndFilter(refuels);
 
                 if (filteredRefuels.isEmpty) {
-                  return const Center(child: Text('No hay repostajes en ese rango de fechas.'));
+                  return Center(
+                    child: Text(l10n.noRefuelsInRange),
+                  );
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   itemCount: filteredRefuels.length,
                   itemBuilder: (context, index) {
                     final item = filteredRefuels[index];
                     return RefuelTile(
                       refuel: item,
                       onDelete: item.id != null
-                          ? () => ref.read(refuelListProvider.notifier).deleteRefuel(item.id!)
+                          ? () => _confirmDeleteSingle(context, item)
                           : () {},
                       onEdit: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => AddRefuelScreen(refuel: item)),
+                        MaterialPageRoute(
+                          builder: (_) => AddRefuelScreen(refuel: item),
+                        ),
                       ),
                     );
                   },
@@ -237,7 +402,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 foregroundColor: Theme.of(context).colorScheme.onError,
               ),
               icon: const Icon(Icons.delete_forever),
-              label: const Text('Eliminar todos los registros'),
+              label: Text(l10n.deleteAllRecords),
               onPressed: refuels.isNotEmpty
                   ? () => _confirmDeleteAll(context)
                   : null,
@@ -249,7 +414,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             icon: const Icon(Icons.delete_forever),
-            label: const Text('Eliminar todos los registros'),
+            label: Text(l10n.deleteAllRecords),
             onPressed: null,
           ),
         ),

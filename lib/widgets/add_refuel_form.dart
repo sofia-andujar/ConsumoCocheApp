@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 
@@ -8,8 +9,9 @@ class AddRefuelForm extends ConsumerStatefulWidget {
   final Refuel? refuel;
   final VoidCallback? onSaved;
   final bool clearOnSave;
+  final bool compact;
 
-  const AddRefuelForm({super.key, this.refuel, this.onSaved, this.clearOnSave = false});
+  const AddRefuelForm({super.key, this.refuel, this.onSaved, this.clearOnSave = false, this.compact = false});
 
   @override
   AddRefuelFormState createState() => AddRefuelFormState();
@@ -68,7 +70,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     });
   }
 
-  void _save() async {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
     final refuel = Refuel(
@@ -94,8 +96,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     widget.onSaved?.call();
 
     if (!isEditing && widget.onSaved == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Repostaje añadido correctamente')),
+        SnackBar(content: Text(l10n.refuelAddedSuccessfully)),
       );
     }
 
@@ -106,14 +109,103 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
 
   @override
   Widget build(BuildContext context) {
-    final dateText = DateFormat.yMMMd().format(_selectedDate);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final dateText = DateFormat.yMMMd(locale).format(_selectedDate);
+
+    if (widget.compact) {
+      return Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () => _pickDate(context),
+              borderRadius: BorderRadius.circular(8),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.date,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: const Icon(Icons.calendar_month),
+                ),
+                child: Text(dateText),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _kilometerController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: l10n.distanceKm,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.required;
+                      }
+                      final n = double.tryParse(value);
+                      if (n == null) return l10n.invalid;
+                      if (n <= 0) return l10n.mustBeGreaterThanZero;
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextFormField(
+                    controller: _litersController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: l10n.liters,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.required;
+                      }
+                      final n = double.tryParse(value);
+                      if (n == null) return l10n.invalid;
+                      if (n <= 0) return l10n.mustBeGreaterThanZero;
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _commentController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                labelText: l10n.commentOptional,
+                border: const OutlineInputBorder(),
+                isDense: true,
+                hintText: l10n.addNote,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _save,
+                child: Text(isEditing ? l10n.update : l10n.save),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Form(
       key: _formKey,
       child: Column(
         children: [
           ListTile(
-            title: const Text('Fecha'),
+            title: Text(l10n.date),
             subtitle: Text(dateText),
             trailing: const Icon(Icons.calendar_month),
             onTap: () => _pickDate(context),
@@ -122,40 +214,46 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
           TextFormField(
             controller: _kilometerController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Distancia (km)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.distanceKm,
+              border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Introduce la distancia del trayecto';
+                return l10n.enterDistance;
               }
-              return double.tryParse(value) == null ? 'Valor numérico inválido' : null;
+              final n = double.tryParse(value);
+              if (n == null) return l10n.invalidNumericValue;
+              if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
+              return null;
             },
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _litersController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Litros repostados',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.litersRefueled,
+              border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Introduce los litros';
+                return l10n.enterLiters;
               }
-              return double.tryParse(value) == null ? 'Valor numérico inválido' : null;
+              final n = double.tryParse(value);
+              if (n == null) return l10n.invalidNumericValue;
+              if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
+              return null;
             },
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _commentController,
             keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              labelText: 'Comentario (opcional)',
-              border: OutlineInputBorder(),
-              hintText: 'Añade una nota sobre este repostaje',
+            decoration: InputDecoration(
+              labelText: l10n.commentOptional,
+              border: const OutlineInputBorder(),
+              hintText: l10n.addNoteFull,
             ),
           ),
           const SizedBox(height: 24),
@@ -163,7 +261,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _save,
-              child: Text(isEditing ? 'Actualizar' : 'Guardar repostaje'),
+              child: Text(isEditing ? l10n.update : l10n.saveRefuel),
             ),
           ),
         ],

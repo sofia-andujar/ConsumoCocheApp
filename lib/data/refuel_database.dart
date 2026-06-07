@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/refuel.dart';
+import 'db_asset_helper.dart';
 
 // This class manages the SQLite database
 
@@ -22,12 +25,24 @@ class RefuelDatabase {
 
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, _databaseName);
+    final dbFile = File(path);
+    final flagFile = File(join(documentsDirectory.path, '.asset_db_loaded'));
+
+    // One-time: replace old DB with pre-built asset that has comments
+    if (await dbFile.exists() && !await flagFile.exists()) {
+      await dbFile.delete();
+    }
+
+    if (!await dbFile.exists()) {
+      await copyDbFromAssets();
+      await flagFile.create(recursive: true);
+    }
+
     _database = await openDatabase(
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
-      onOpen: _onOpen,
     );
     return _database!;
   }
@@ -57,10 +72,6 @@ class RefuelDatabase {
         ''');
       }
     }
-  }
-
-  Future<void> _onOpen(Database db) async {
-    // Database is ready
   }
 
   Future<int> insertRefuel(Refuel refuel) async {

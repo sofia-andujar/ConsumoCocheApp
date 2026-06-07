@@ -1,0 +1,210 @@
+{
+  "@@locale": "es",
+
+  "appTitle": "Consumo Mazda 2 Sofía",
+  "@appTitle": {"description": "App title shown in the home screen AppBar"},
+
+  "errorPrefix": "Error: {error}",
+  "@errorPrefix": {"description": "Generic error message", "placeholders": {"error": {"type": "String"}}},
+
+  "averageConsumption": "Consumo medio",
+  "@averageConsumption": {"description": "Label for average consumption card"},
+
+  "addAtLeastOneRefuel": "Añade al menos 1 repostaje",
+  "@addAtLeastOneRefuel": {"description": "Shown when there are no refuels"},
+
+  "addRefuel": "Añadir repostaje",
+  "@addRefuel": {"description": "Title for add refuel form/screen"},
+
+  "refuelAddedSuccessfully": "Repostaje añadido correctamente",
+  "@refuelAddedSuccessfully": {"description": "Snackbar after adding a refuel"},
+
+  "reset": "Restablecer",
+  "@reset": {"description": "Reset zoom button label"},
+
+  "resetZoom": "Restablecer zoom",
+  "@resetZoom": {"description": "Reset zoom button in fullscreen chart"},
+
+  "history": "Historial",
+  "@history": {"description": "History screen title"},
+
+  "sort": "Ordenar",
+  "@sort": {"description": "Sort button tooltip"},
+
+  "sortDate": "Fecha",
+  "@sortDate": {"description": "Sort by date"},
+
+  "sortConsumption": "Consumo",
+  "@sortConsumption": {"description": "Sort by consumption"},
+
+  "sortDistance": "Distancia",
+  "@sortDistance": {"description": "Sort by distance"},
+
+  "sortLiters": "Litros",
+  "@sortLiters": {"description": "Sort by liters"},
+
+  "filterByDate": "Filtrar por fecha",
+  "@filterByDate": {"description": "Filter section title"},
+
+  "dateFrom": "Desde",
+  "@dateFrom": {"description": "Start date label"},
+
+  "dateTo": "Hasta",
+  "@dateTo": {"description": "End date label"},
+
+  "selectDate": "Seleccionar",
+  "@selectDate": {"description": "Date placeholder"},
+
+  "clear": "Limpiar",
+  "@clear": {"description": "Clear filters button"},
+
+  "apply": "Aplicar",
+  "@apply": {"description": "Apply filters button"},
+
+  "noRefuelsRegistered": "No hay repostajes registrados.",
+  "@noRefuelsRegistered": {"description": "Empty state message"},
+
+  "noRefuelsInRange": "No hay repostajes en ese rango de fechas.",
+  "@noRefuelsInRange": {"description": "No refuels in selected date range"},
+
+  "deleteAll": "Eliminar todos",
+  "@deleteAll": {"description": "Delete all dialog title"},
+
+  "confirmDeleteAll": "¿Estás seguro de que deseas eliminar todos los registros? Esta acción no se puede deshacer.",
+  "@confirmDeleteAll": {"description": "Confirm delete all dialog content"},
+
+  "cancel": "Cancelar",
+  "@cancel": {"description": "Cancel button"},
+
+  "delete": "Eliminar",
+  "@delete": {"description": "Delete button"},
+
+  "deletedRecords": "Eliminados {count} registros",
+  "@deletedRecords": {"description": "Snackbar after bulk delete", "placeholders": {"count": {"type": "int"}}},
+
+  "undo": "Deshacer",
+  "@undo": {"description": "Undo snackbar action"},
+
+  "deleteRefuel": "Eliminar repostaje",
+  "@deleteRefuel": {"description": "Delete single refuel dialog title"},
+
+  "confirmDeleteRefuel": "¿Eliminar el repostaje del {date} ({consumption} L/100km)?",
+  "@confirmDeleteRefuel": {"description": "Confirm delete single refuel", "placeholders": {"date": {"type": "String"}, "consumption": {"type": "String"}}},
+
+  "refuelDeleted": "Repostaje eliminado",
+  "@refuelDeleted": {"description": "Snackbar after deleting a refuel"},
+
+  "deleteAllRecords": "Eliminar todos los registros",
+  "@deleteAllRecords": {"description": "Delete all records bottom button"},
+
+  "editRefuel": "Editar repostaje",
+  "@editRefuel": {"description": "Title when editing a refuel"},
+
+  "date": "Fecha",
+  "@date": {"description": "Date field label"},
+
+  "distanceKm": "Distancia (km)",
+  "@distanceKm": {"description": "Distance field label"},
+
+  "required": "Requerido",
+  "@required": {"description": "Required field validation"},
+
+  "invalid": "Inválido",
+  "@invalid": {"description": "Invalid value validation (short)"},
+
+  "mustBeGreaterThanZero": "Debe ser > 0",
+  "@mustBeGreaterThanZero": {"description": "Must be > 0 validation (short)"},
+
+  "liters": "Litros",
+  "@liters": {"description": "Liters field label (compact)"},
+
+  "commentOptional": "Comentario (opcional)",
+  "@commentOptional": {"description": "Comment field label"},
+
+  "addNote": "Añade una nota",
+  "@addNote": {"description": "Comment hint (compact)"},
+
+  "update": "Actualizar",
+  "@update": {"description": "Update button"},
+
+  "save": "Guardar",
+  "@save": {"description": "Save button (compact)"},
+
+  "enterDistance": "Introduce la distancia del trayecto",
+  "@enterDistance": {"description": "Distance validation (full form)"},
+
+  "invalidNumericValue": "Valor numérico inválido",
+  "@invalidNumericValue": {"description": "Invalid numeric value validation"},
+
+  "mustBeGreaterThanZeroFull": "Debe ser mayor que 0",
+  "@mustBeGreaterThanZeroFull": {"description": "Must be > 0 validation (full form)"},
+
+  "litersRefueled": "Litros repostados",
+  "@litersRefueled": {"description": "Liters field label (full form)"},
+
+  "enterLiters": "Introduce los litros",
+  "@enterLiters": {"description": "Liters validation (full form)"},
+
+  "addNoteFull": "Añade una nota sobre este repostaje",
+  "@addNoteFull": {"description": "Comment hint (full form)"},
+
+  "saveRefuel": "Guardar repostaje",
+  "@saveRefuel": {"description": "Save button (full form)"},
+
+  "deleteRefuelTooltip": "Eliminar repostaje",
+  "@deleteRefuelTooltip": {"description": "Delete refuel icon tooltip"},
+
+  "editRefuelTooltip": "Editar repostaje",
+  "@editRefuelTooltip": {"description": "Edit refuel icon tooltip"},
+
+  "addRefuelsToSeeChart": "Añade repostajes para ver la evolución del consumo.",
+  "@addRefuelsToSeeChart": {"description": "Empty chart message"},
+
+  "consumptionEvolution": "Evolución consumo",
+  "@consumptionEvolution": {"description": "Chart title"},
+
+  "legendConsumption": "Consumo",
+  "@legendConsumption": {"description": "Chart legend: consumption line"},
+
+  "legendMean": "Media",
+  "@legendMean": {"description": "Chart legend: mean line"},
+
+  "legendAo5": "Ao5",
+  "@legendAo5": {"description": "Chart legend: average of 5 line"},
+
+  "noVisibleLines": "No hay líneas visibles. Toca una leyenda para mostrarla.",
+  "@noVisibleLines": {"description": "No visible chart lines message"},
+
+  "customizeTheme": "Personalizar tema",
+  "@customizeTheme": {"description": "Settings screen title"},
+
+  "accentColor": "Color de acento",
+  "@accentColor": {"description": "Accent color setting label"},
+
+  "visualMode": "Modo visual",
+  "@visualMode": {"description": "Visual/brightness mode setting label"},
+
+  "lightMode": "Claro",
+  "@lightMode": {"description": "Light theme mode"},
+
+  "darkMode": "Oscuro",
+  "@darkMode": {"description": "Dark theme mode"},
+
+  "systemMode": "Sistema",
+  "@systemMode": {"description": "System theme mode"},
+
+  "settingsPersist": "Los cambios se guardan y persisten entre sesiones.",
+  "@settingsPersist": {"description": "Settings footer text"},
+
+  "language": "Idioma",
+  "@language": {"description": "Language setting label"},
+
+  "spanish": "Español",
+  "@spanish": {"description": "Spanish language option"},
+
+  "english": "English",
+  "@english": {"description": "English language option"},
+
+  "catalan": "Català",
+  "@catalan": {"description": "Catalan language option"}
+}

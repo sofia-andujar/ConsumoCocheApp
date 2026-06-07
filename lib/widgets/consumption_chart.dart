@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 
 class ConsumptionChart extends StatefulWidget {
@@ -61,6 +62,9 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+
     if (widget.refuels.isEmpty) {
       final theme = Theme.of(context);
       return Card(
@@ -72,8 +76,8 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
             children: [
               Icon(Icons.bar_chart_rounded, size: 48, color: theme.colorScheme.primary.withAlpha(80)),
               const SizedBox(height: 12),
-              const Text(
-                'Añade repostajes para ver la evolución del consumo.',
+              Text(
+                l10n.addRefuelsToSeeChart,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -102,20 +106,19 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.showTitle)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: Text('Evolución consumo', style: theme.textTheme.titleMedium),
+                  child: Text(l10n.consumptionEvolution, style: theme.textTheme.titleMedium),
                 ),
               if (!widget.showTitle) const SizedBox(height: 6),
               LayoutBuilder(builder: (context, constraints) {
                 final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
                 final preferredH = constraints.maxWidth / 1.7;
                 final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
-                final effectiveHeight = widget.maxChartHeight != null
-                    ? math.min(preferredH, widget.maxChartHeight!)
-                    : chartHeight;
+                final effectiveHeight = widget.maxChartHeight ?? chartHeight;
                 final chartWidth = constraints.maxWidth;
 
                 return SizedBox(
@@ -133,6 +136,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                       ao5Color: ao5Color,
                       isDark: isDark,
                       chartWidth: chartWidth,
+                      locale: locale,
                     ),
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
@@ -146,19 +150,19 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                 children: [
                   _LegendToggle(
                     color: consumptionColor,
-                    label: 'Consumo',
+                    label: l10n.legendConsumption,
                     active: showConsumption,
                     onTap: () => toggleLine(0),
                   ),
                   _LegendToggle(
                     color: meanColor,
-                    label: 'Media',
+                    label: l10n.legendMean,
                     active: showMean,
                     onTap: () => toggleLine(1),
                   ),
                   _LegendToggle(
                     color: ao5Color,
-                    label: 'Ao5',
+                    label: l10n.legendAo5,
                     active: showAO5,
                     onTap: () => toggleLine(2),
                   ),
@@ -168,7 +172,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12.0),
                   child: Text(
-                    'No hay líneas visibles. Toca una leyenda para mostrarla.',
+                    l10n.noVisibleLines,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -217,8 +221,8 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     return spots.where((spot) => spot.x >= minX && spot.x <= maxX).toList();
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('MM/yy').format(date);
+  String _formatDate(DateTime date, String locale) {
+    return DateFormat('MM/yy', locale).format(date);
   }
 
   LineChartData _buildChartData(
@@ -233,11 +237,11 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     required Color ao5Color,
     required bool isDark,
     required double chartWidth,
+    required String locale,
   }) {
     final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length].reduce(math.max);
     final maxDataX = maxSpotCount > 0 ? (maxSpotCount - 1).toDouble() : 0.0;
 
-    // Default viewport: show last 12 months from today when available.
     double defaultStartX = 0.0;
     final now = DateTime.now();
     final oneYearAgo = now.subtract(const Duration(days: 365));
@@ -273,7 +277,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final minY = math.max(0.0, rawMinY - padding);
     final maxY = rawMaxY + padding;
 
-    // Dynamic Y interval — aim for ~5 horizontal lines
     final yRange = maxY - minY;
     final roughInterval = yRange / 5;
     final exp = (math.log(roughInterval) / math.ln10).floor();
@@ -290,7 +293,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
       yInterval = 10 * magnitude;
     }
 
-    // Smart X interval based on available chart width
     final visibleRange = (viewportEndX - viewportStartX).clamp(1.0, maxDataX + 1.0);
     const labelWidth = 35.0;
     final maxLabels = (chartWidth / labelWidth).floor().clamp(2, 20);
@@ -298,7 +300,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
 
     final gridColor = isDark ? Colors.white.withAlpha(25) : Colors.black.withAlpha(18);
 
-    // Determine dot visibility based on data density
     final showDots = visibleConsumption.length <= 15 && visibleConsumption.isNotEmpty;
     final dotData = FlDotData(
       show: showDots,
@@ -355,8 +356,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
               final index = value.toInt();
               if (index < viewportStartX || index > viewportEndX) return const SizedBox.shrink();
               if (index < 0 || index >= widget.refuels.length) return const SizedBox.shrink();
-              final label = _formatDate(widget.refuels[index].date);
-              // Rotate every other label when dense
+              final label = _formatDate(widget.refuels[index].date, locale);
               final isAlternate = (index % (bottomInterval * 2).ceilToDouble().toInt()).abs() % 2 == 0;
               return Padding(
                 padding: const EdgeInsets.only(top: 4),
@@ -451,7 +451,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
               return List.filled(touchedSpots.length, null);
             }
 
-            final date = DateFormat('dd/MM/yyyy').format(widget.refuels[index].date);
+            final date = DateFormat('dd/MM/yyyy', locale).format(widget.refuels[index].date);
             final labelColor = isDark ? Colors.white : Colors.black87;
 
             final textSpans = <TextSpan>[

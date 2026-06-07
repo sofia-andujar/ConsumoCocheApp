@@ -1,0 +1,141 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Mazda 2 Sofia Consumption",
+
+  "errorPrefix": "Error: {error}",
+
+  "averageConsumption": "Average consumption",
+
+  "addAtLeastOneRefuel": "Add at least 1 refuel",
+
+  "addRefuel": "Add refuel",
+
+  "refuelAddedSuccessfully": "Refuel added successfully",
+
+  "reset": "Reset",
+
+  "resetZoom": "Reset zoom",
+
+  "history": "History",
+
+  "sort": "Sort",
+
+  "sortDate": "Date",
+
+  "sortConsumption": "Consumption",
+
+  "sortDistance": "Distance",
+
+  "sortLiters": "Liters",
+
+  "filterByDate": "Filter by date",
+
+  "dateFrom": "From",
+
+  "dateTo": "To",
+
+  "selectDate": "Select",
+
+  "clear": "Clear",
+
+  "apply": "Apply",
+
+  "noRefuelsRegistered": "No refuels registered.",
+
+  "noRefuelsInRange": "No refuels in that date range.",
+
+  "deleteAll": "Delete all",
+
+  "confirmDeleteAll": "Are you sure you want to delete all records? This action cannot be undone.",
+
+  "cancel": "Cancel",
+
+  "delete": "Delete",
+
+  "deletedRecords": "Deleted {count} records",
+
+  "undo": "Undo",
+
+  "deleteRefuel": "Delete refuel",
+
+  "confirmDeleteRefuel": "Delete the refuel from {date} ({consumption} L/100km)?",
+
+  "refuelDeleted": "Refuel deleted",
+
+  "deleteAllRecords": "Delete all records",
+
+  "editRefuel": "Edit refuel",
+
+  "date": "Date",
+
+  "distanceKm": "Distance (km)",
+
+  "required": "Required",
+
+  "invalid": "Invalid",
+
+  "mustBeGreaterThanZero": "Must be > 0",
+
+  "liters": "Liters",
+
+  "commentOptional": "Comment (optional)",
+
+  "addNote": "Add a note",
+
+  "update": "Update",
+
+  "save": "Save",
+
+  "enterDistance": "Enter the trip distance",
+
+  "invalidNumericValue": "Invalid numeric value",
+
+  "mustBeGreaterThanZeroFull": "Must be greater than 0",
+
+  "litersRefueled": "Liters refueled",
+
+  "enterLiters": "Enter the liters",
+
+  "addNoteFull": "Add a note about this refuel",
+
+  "saveRefuel": "Save refuel",
+
+  "deleteRefuelTooltip": "Delete refuel",
+
+  "editRefuelTooltip": "Edit refuel",
+
+  "addRefuelsToSeeChart": "Add refuels to see consumption evolution.",
+
+  "consumptionEvolution": "Consumption evolution",
+
+  "legendConsumption": "Consumption",
+
+  "legendMean": "Average",
+
+  "legendAo5": "Avg5",
+
+  "noVisibleLines": "No visible lines. Tap a legend to show it.",
+
+  "customizeTheme": "Customize theme",
+
+  "accentColor": "Accent color",
+
+  "visualMode": "Visual mode",
+
+  "lightMode": "Light",
+
+  "darkMode": "Dark",
+
+  "systemMode": "System",
+
+  "settingsPersist": "Changes are saved and persist between sessions.",
+
+  "language": "Language",
+
+  "spanish": "Español",
+
+  "english": "English",
+
+  "catalan": "Català"
+}

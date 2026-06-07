@@ -7,6 +7,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod: ^2.4.0
   sqflite: ^2.2.8
   path_provider: ^2.0.16
@@ -23,6 +25,7 @@ dev_dependencies:
   sqlite3: ^2.1.0
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/repostajes.db

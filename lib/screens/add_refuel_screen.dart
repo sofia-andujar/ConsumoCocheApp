@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../widgets/add_refuel_form.dart';
 
@@ -11,9 +12,10 @@ class AddRefuelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(refuel != null ? 'Editar repostaje' : 'Añadir repostaje'),
+        title: Text(refuel != null ? l10n.editRefuel : l10n.addRefuel),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

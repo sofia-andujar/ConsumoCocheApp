@@ -27,7 +27,7 @@ class Refuel {
 
 
   factory Refuel.fromMap(Map<String, Object?> map) {
-    final kmValue = map['kilometers'] ?? map['kilometers'];
+    final kmValue = map['kilometers'] ?? map['km'];
     if (kmValue == null) {
       throw StateError('Refuel map missing kilometers value: $map');
     }
