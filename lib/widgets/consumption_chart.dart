@@ -33,10 +33,9 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
   bool showConsumption = true;
   bool showMean = true;
   bool showAO5 = true;
-  bool showAO12 = true;
 
   void toggleLine(int index) {
-    final activeStates = [showConsumption, showMean, showAO5, showAO12];
+    final activeStates = [showConsumption, showMean, showAO5];
     final visibleLines = activeStates.where((item) => item).length;
     setState(() {
       switch (index) {
@@ -51,10 +50,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
         case 2:
           if (showAO5 && visibleLines == 1) return;
           showAO5 = !showAO5;
-          break;
-        case 3:
-          if (showAO12 && visibleLines == 1) return;
-          showAO12 = !showAO12;
           break;
       }
     });
@@ -74,8 +69,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final consumptionValues = _consumptionValues();
     final cumulativeMeanValues = _cumulativeMean(consumptionValues);
     final ao5Values = _movingAverage(consumptionValues, 5);
-    final ao12Values = _movingAverage(consumptionValues, 12);
-    final visibleLines = [showConsumption, showMean, showAO5, showAO12].where((item) => item).length;
+    final visibleLines = [showConsumption, showMean, showAO5].where((item) => item).length;
 
     return Card(
       child: Padding(
@@ -109,7 +103,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                         showConsumption ? _spotsForValues(consumptionValues) : const [],
                         showMean ? _spotsForValues(cumulativeMeanValues) : const [],
                         showAO5 ? _spotsForValues(ao5Values) : const [],
-                        showAO12 ? _spotsForValues(ao12Values) : const [],
                       ),
                     ),
                   ),
@@ -138,12 +131,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                   label: 'Ao5',
                   active: showAO5,
                   onTap: () => toggleLine(2),
-                ),
-                _LegendToggle(
-                  color: Colors.purple,
-                  label: 'Ao12',
-                  active: showAO12,
-                  onTap: () => toggleLine(3),
                 ),
               ],
             ),
@@ -200,12 +187,11 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
   }
 
   LineChartData _buildChartData(List<FlSpot> consumptionSpots, List<FlSpot> meanSpots,
-      List<FlSpot> ao5Spots, List<FlSpot> ao12Spots) {
+      List<FlSpot> ao5Spots) {
     final allValues = <double>[];
     allValues.addAll(consumptionSpots.map((spot) => spot.y));
     allValues.addAll(meanSpots.map((spot) => spot.y));
     allValues.addAll(ao5Spots.map((spot) => spot.y));
-    allValues.addAll(ao12Spots.map((spot) => spot.y));
 
     final rawMinY = allValues.isEmpty ? 0.0 : allValues.reduce((a, b) => a < b ? a : b);
     final rawMaxY = allValues.isEmpty ? 1.0 : allValues.reduce((a, b) => a > b ? a : b);
@@ -214,7 +200,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final halfRange = rawHalfRange * widget.yAxisStretch;
     final minY = math.max(0.0, rawCenterY - halfRange);
     final maxY = rawCenterY + halfRange;
-    final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length, ao12Spots.length].reduce(math.max);
+    final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length].reduce(math.max);
     final baseMaxX = maxSpotCount > 0 ? (maxSpotCount - 1).toDouble() : 0.0;
     final maxX = widget.enableAxisStretch ? baseMaxX * widget.xAxisStretch : baseMaxX;
 
@@ -270,16 +256,16 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           barWidth: 2,
           dotData: const FlDotData(show: false),
         ),
-        LineChartBarData(
-          spots: ao12Spots,
-          isCurved: true,
-          color: Colors.purple,
-          barWidth: 2,
-          dotData: const FlDotData(show: false),
-        ),
       ],
       lineTouchData: LineTouchData(
-        getTouchedSpotIndicator: (barData, spotIndexes) => [],
+        getTouchedSpotIndicator: (barData, spotIndexes) {
+          return spotIndexes.map((spotIndex) {
+            return TouchedSpotIndicatorData(
+              FlLine(color: barData.color?.withValues(alpha: 153) ?? Colors.black54, strokeWidth: 2),
+              const FlDotData(show: false),
+            );
+          }).toList();
+        },
         touchTooltipData: LineTouchTooltipData(
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
