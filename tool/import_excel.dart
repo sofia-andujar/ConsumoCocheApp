@@ -81,7 +81,7 @@ void main(List<String> args) {
       }
 
 
-      print('Processing row ${rowIndex + 1}...');
+      // print('Processing row ${rowIndex + 1}...');
 
       final dateValue = row[columnIndexes['date']!]?.value;
       final kmValue = row[columnIndexes['kilometers']!]?.value;

@@ -14,6 +14,8 @@ class ConsumptionChart extends StatefulWidget {
     this.enableAxisStretch = false,
     this.xAxisStretch = 1.0,
     this.yAxisStretch = 1.0,
+    this.xViewportStart,
+    this.xViewportEnd,
     this.maxChartHeight,
   });
 
@@ -23,6 +25,8 @@ class ConsumptionChart extends StatefulWidget {
   final bool enableAxisStretch;
   final double xAxisStretch;
   final double yAxisStretch;
+  final double? xViewportStart;
+  final double? xViewportEnd;
   final double? maxChartHeight;
 
   @override
@@ -59,6 +63,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
   Widget build(BuildContext context) {
     if (widget.refuels.isEmpty) {
       return const Card(
+        elevation: 0,
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Text('Añade repostajes para ver la evolución del consumo.'),
@@ -72,77 +77,83 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final visibleLines = [showConsumption, showMean, showAO5].where((item) => item).length;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (widget.showTitle)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 16),
-                child: Text('Evolución consumo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              ),
-            if (!widget.showTitle) const SizedBox(height: 6),
-            LayoutBuilder(builder: (context, constraints) {
-              final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
-              final preferredH = constraints.maxWidth / 1.7;
-              final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
-              final effectiveHeight = widget.maxChartHeight != null
-                  ? math.min(preferredH, widget.maxChartHeight!)
-                  : chartHeight;
+      elevation: widget.showTitle ? 4 : 0,
+      color: widget.showTitle ? null : Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap == null ? null : () => widget.onTap!(context),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.showTitle)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: Text('Evolución consumo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                ),
+              if (!widget.showTitle) const SizedBox(height: 6),
+              LayoutBuilder(builder: (context, constraints) {
+                final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
+                final preferredH = constraints.maxWidth / 1.7;
+                final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
+                final effectiveHeight = widget.maxChartHeight != null
+                    ? math.min(preferredH, widget.maxChartHeight!)
+                    : chartHeight;
 
-              return SizedBox(
-                height: effectiveHeight,
-                child: GestureDetector(
-                  onTap: widget.onTap == null ? null : () => widget.onTap!(context),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: effectiveHeight,
-                    child: LineChart(
-                      _buildChartData(
-                        showConsumption ? _spotsForValues(consumptionValues) : const [],
-                        showMean ? _spotsForValues(cumulativeMeanValues) : const [],
-                        showAO5 ? _spotsForValues(ao5Values) : const [],
+                return SizedBox(
+                  height: effectiveHeight,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onTap == null ? null : () => widget.onTap!(context),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: effectiveHeight,
+                      child: LineChart(
+                        _buildChartData(
+                          showConsumption ? _spotsForValues(consumptionValues) : const [],
+                          showMean ? _spotsForValues(cumulativeMeanValues) : const [],
+                          showAO5 ? _spotsForValues(ao5Values) : const [],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: [
-                _LegendToggle(
-                  color: Colors.blueAccent,
-                  label: 'Consumo',
-                  active: showConsumption,
-                  onTap: () => toggleLine(0),
-                ),
-                _LegendToggle(
-                  color: Colors.green,
-                  label: 'Media',
-                  active: showMean,
-                  onTap: () => toggleLine(1),
-                ),
-                _LegendToggle(
-                  color: Colors.orange,
-                  label: 'Ao5',
-                  active: showAO5,
-                  onTap: () => toggleLine(2),
-                ),
-              ],
-            ),
-            if (visibleLines == 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: Text(
-                  'No hay líneas visibles. Toca una leyenda para mostrarla.',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                );
+              }),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: [
+                  _LegendToggle(
+                    color: Colors.blueAccent,
+                    label: 'Consumo',
+                    active: showConsumption,
+                    onTap: () => toggleLine(0),
+                  ),
+                  _LegendToggle(
+                    color: Colors.green,
+                    label: 'Media',
+                    active: showMean,
+                    onTap: () => toggleLine(1),
+                  ),
+                  _LegendToggle(
+                    color: Colors.orange,
+                    label: 'Ao5',
+                    active: showAO5,
+                    onTap: () => toggleLine(2),
+                  ),
+                ],
               ),
-          ],
+              if (visibleLines == 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: Text(
+                    'No hay líneas visibles. Toca una leyenda para mostrarla.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -182,31 +193,63 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     );
   }
 
+  List<FlSpot> _visibleSpots(List<FlSpot> spots, double minX, double maxX) {
+    return spots.where((spot) => spot.x >= minX && spot.x <= maxX).toList();
+  }
+
   String _formatDate(DateTime date) {
-    return DateFormat.Md().format(date);
+    return DateFormat('MM/yy').format(date);
   }
 
   LineChartData _buildChartData(List<FlSpot> consumptionSpots, List<FlSpot> meanSpots,
       List<FlSpot> ao5Spots) {
-    final allValues = <double>[];
-    allValues.addAll(consumptionSpots.map((spot) => spot.y));
-    allValues.addAll(meanSpots.map((spot) => spot.y));
-    allValues.addAll(ao5Spots.map((spot) => spot.y));
+    final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length].reduce(math.max);
+    final maxDataX = maxSpotCount > 0 ? (maxSpotCount - 1).toDouble() : 0.0;
 
-    final rawMinY = allValues.isEmpty ? 0.0 : allValues.reduce((a, b) => a < b ? a : b);
-    final rawMaxY = allValues.isEmpty ? 1.0 : allValues.reduce((a, b) => a > b ? a : b);
+    // Default viewport: show last 12 months from today when available.
+    double defaultStartX = 0.0;
+    final now = DateTime.now();
+    final oneYearAgo = now.subtract(const Duration(days: 365));
+    // find first index with date >= oneYearAgo
+    final idx = widget.refuels.indexWhere((r) => !r.date.isBefore(oneYearAgo));
+    if (idx != -1) {
+      defaultStartX = idx.toDouble();
+    } else {
+      // fallback: show last 12 data points if available
+      if (maxSpotCount > 12) {
+        defaultStartX = (maxSpotCount - 12).toDouble();
+      } else {
+        defaultStartX = 0.0;
+      }
+    }
+
+    final viewportStartX = (widget.xViewportStart ?? defaultStartX).clamp(0.0, maxDataX);
+    final viewportEndX = (widget.xViewportEnd ?? maxDataX).clamp(0.0, maxDataX);
+    final visibleConsumption = _visibleSpots(consumptionSpots, viewportStartX, viewportEndX);
+    final visibleMean = _visibleSpots(meanSpots, viewportStartX, viewportEndX);
+    final visibleAo5 = _visibleSpots(ao5Spots, viewportStartX, viewportEndX);
+    final visibleValues = <double>[];
+    visibleValues.addAll(visibleConsumption.map((spot) => spot.y));
+    visibleValues.addAll(visibleMean.map((spot) => spot.y));
+    visibleValues.addAll(visibleAo5.map((spot) => spot.y));
+
+    final rawMinY = visibleValues.isEmpty
+        ? 0.0
+        : visibleValues.reduce((a, b) => a < b ? a : b);
+    final rawMaxY = visibleValues.isEmpty
+        ? 1.0
+        : visibleValues.reduce((a, b) => a > b ? a : b);
     final rawCenterY = (rawMinY + rawMaxY) / 2.0;
     final rawHalfRange = math.max(0.5, (rawMaxY - rawMinY) / 2.0);
     final halfRange = rawHalfRange * widget.yAxisStretch;
     final minY = math.max(0.0, rawCenterY - halfRange);
     final maxY = rawCenterY + halfRange;
-    final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length].reduce(math.max);
-    final baseMaxX = maxSpotCount > 0 ? (maxSpotCount - 1).toDouble() : 0.0;
-    final maxX = widget.enableAxisStretch ? baseMaxX * widget.xAxisStretch : baseMaxX;
+    final visibleRange = (viewportEndX - viewportStartX).clamp(1.0, maxDataX + 1.0);
+    final bottomInterval = visibleRange > 4 ? (visibleRange / 4).ceilToDouble() : 1.0;
 
     return LineChartData(
-      minX: 0,
-      maxX: maxX,
+      minX: viewportStartX,
+      maxX: viewportEndX,
       minY: minY,
       maxY: maxY,
       gridData: FlGridData(
@@ -219,9 +262,10 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 40,
-            interval: maxSpotCount > 4 ? (maxSpotCount / 4).floorToDouble().clamp(1.0, double.infinity) : 1,
+            interval: bottomInterval,
             getTitlesWidget: (value, meta) {
               final index = value.toInt();
+              if (index < viewportStartX || index > viewportEndX) return const SizedBox.shrink();
               if (index < 0 || index >= widget.refuels.length) return const SizedBox.shrink();
               final label = _formatDate(widget.refuels[index].date);
               return Center(child: Text(label, style: const TextStyle(fontSize: 10)));
@@ -236,21 +280,21 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
       ),
       lineBarsData: [
         LineChartBarData(
-          spots: consumptionSpots,
+          spots: visibleConsumption,
           isCurved: true,
           color: Colors.blueAccent,
           barWidth: 2,
           dotData: const FlDotData(show: false),
         ),
         LineChartBarData(
-          spots: meanSpots,
+          spots: visibleMean,
           isCurved: true,
           color: Colors.green,
           barWidth: 2,
           dotData: const FlDotData(show: false),
         ),
         LineChartBarData(
-          spots: ao5Spots,
+          spots: visibleAo5,
           isCurved: true,
           color: Colors.orange,
           barWidth: 2,
@@ -269,8 +313,18 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
         touchTooltipData: LineTouchTooltipData(
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
+              final seriesNames = ['Consumo', 'Media', 'Ao5'];
+              final seriesName = spot.barIndex >= 0 && spot.barIndex < seriesNames.length 
+                  ? seriesNames[spot.barIndex] 
+                  : 'Dato';
+              
+              final index = spot.x.toInt();
+              final date = index >= 0 && index < widget.refuels.length 
+                  ? _formatDate(widget.refuels[index].date)
+                  : 'N/A';
+              
               return LineTooltipItem(
-                '${spot.y.toStringAsFixed(2)} L/100km',
+                '$seriesName\n$date\n${spot.y.toStringAsFixed(2)} L/100km',
                 const TextStyle(color: Colors.white, fontSize: 12),
               );
             }).toList();
@@ -304,24 +358,25 @@ class _LegendToggle extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? Colors.grey.shade100 : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: active ? color : Colors.grey.shade400),
+          border: Border.all(color: active ? color : Colors.grey.shade400, width: 2),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 12,
-              height: 12,
+              width: 16,
+              height: 16,
               decoration: BoxDecoration(
-                color: active ? color : color.withValues(alpha: 90),
+                color: color,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
                 fontSize: 14,
+                fontWeight: active ? FontWeight.w600 : FontWeight.normal,
                 color: active ? Colors.black : Colors.grey.shade600,
                 decoration: active ? TextDecoration.none : TextDecoration.lineThrough,
               ),

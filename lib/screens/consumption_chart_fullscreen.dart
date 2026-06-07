@@ -22,6 +22,33 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
       DeviceOrientation.landscapeRight,
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    // Initialize viewport to show last 1 year by default (if data available).
+    final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
+    if (maxDataX <= 0) {
+      _xZoom = 1.0;
+      _xOffset = 0.0;
+    } else {
+      final now = DateTime.now();
+      final oneYearAgo = now.subtract(const Duration(days: 365));
+      var startIdx = widget.refuels.indexWhere((r) => !r.date.isBefore(oneYearAgo));
+      if (startIdx == -1) {
+        // fallback: show last 12 points if available
+        if (widget.refuels.length > 12) {
+          startIdx = (widget.refuels.length - 12);
+        } else {
+          startIdx = 0;
+        }
+      }
+
+      // viewportWidth in data units
+      var viewportWidth = (maxDataX - startIdx.toDouble());
+      if (viewportWidth < 1.0) viewportWidth = 1.0;
+
+      final computedZoom = maxDataX / viewportWidth;
+      _xZoom = computedZoom.clamp(1.0, 3.0);
+      _xOffset = startIdx.toDouble().clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
+    }
   }
 
   @override
@@ -33,10 +60,9 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
     super.dispose();
   }
 
-  double _xStretch = 1.0;
-  double _yStretch = 1.0;
-  late double _initialXStretch;
-  late double _initialYStretch;
+  double _xZoom = 1.0;
+  double _xOffset = 0.0;
+  late double _initialXZoom;
 
   @override
   Widget build(BuildContext context) {
@@ -47,46 +73,35 @@ class _ConsumptionChartFullScreenState extends State<ConsumptionChartFullScreen>
       body: SafeArea(
         child: GestureDetector(
           onScaleStart: (details) {
-            _initialXStretch = _xStretch;
-            _initialYStretch = _yStretch;
+            _initialXZoom = _xZoom;
           },
           onScaleUpdate: (details) {
             setState(() {
-              final horizontal = details.horizontalScale.clamp(0.5, 3.0);
-              final vertical = details.verticalScale.clamp(0.5, 3.0);
-              _xStretch = (_initialXStretch * horizontal).clamp(0.5, 3.0);
-              _yStretch = (_initialYStretch * vertical).clamp(0.5, 3.0);
+              final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
+              final newZoom = (_initialXZoom * details.scale).clamp(1.0, 3.0);
+              final viewportWidth = maxDataX > 0 ? maxDataX / newZoom : 0.0;
+              final chartWidth = MediaQuery.of(context).size.width - 32.0;
+              final dxUnits = chartWidth > 0 ? details.focalPointDelta.dx / chartWidth * viewportWidth : 0.0;
+              _xZoom = newZoom;
+              _xOffset = (_xOffset - dxUnits).clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
             });
           },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final safeHeight = math.max(200.0, constraints.maxHeight - 120.0);
-                      return ConsumptionChart(
-                        refuels: widget.refuels,
-                        onTap: null,
-                        showTitle: false,
-                        enableAxisStretch: true,
-                        xAxisStretch: _xStretch,
-                        yAxisStretch: _yStretch,
-                        maxChartHeight: safeHeight,
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    'Pincha para estirar/encoger los ejes',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final safeHeight = math.max(200.0, constraints.maxHeight - 120.0);
+              final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
+              final viewportWidth = maxDataX > 0 ? maxDataX / _xZoom : 0.0;
+              final startX = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth)).toDouble();
+              final endX = (startX + viewportWidth).clamp(0.0, maxDataX).toDouble();
+              return ConsumptionChart(
+                refuels: widget.refuels,
+                onTap: null,
+                showTitle: false,
+                xViewportStart: startX,
+                xViewportEnd: endX,
+                maxChartHeight: safeHeight,
+              );
+            },
           ),
         ),
       ),

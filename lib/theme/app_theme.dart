@@ -83,7 +83,7 @@ class AppTheme {
           foregroundColor: accentOnColor,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 2,
+          elevation: 4,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
