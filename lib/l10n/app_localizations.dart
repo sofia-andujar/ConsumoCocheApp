@@ -513,6 +513,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Català'**
   String get catalan;
+
+  /// Import data card title
+  ///
+  /// In es, this message translates to:
+  /// **'Importar datos'**
+  String get importData;
+
+  /// Import data card description
+  ///
+  /// In es, this message translates to:
+  /// **'Importa los repostajes históricos desde los datos incluidos en la aplicación. Esta acción solo se puede realizar una vez.'**
+  String get importDataDescription;
+
+  /// Import data button label
+  ///
+  /// In es, this message translates to:
+  /// **'Importar'**
+  String get importDataButton;
+
+  /// Import data already done message
+  ///
+  /// In es, this message translates to:
+  /// **'Datos importados'**
+  String get importDataDone;
+
+  /// Import data confirmation dialog message
+  ///
+  /// In es, this message translates to:
+  /// **'¿Deseas importar los repostajes históricos? Los datos se añadirán a los ya existentes.'**
+  String get importDataConfirm;
+
+  /// Import data success message
+  ///
+  /// In es, this message translates to:
+  /// **'Se han importado {count} repostajes'**
+  String importDataSuccess(int count);
 }
 
 class _AppLocalizationsDelegate

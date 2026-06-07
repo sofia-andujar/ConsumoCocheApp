@@ -11,6 +11,10 @@ class RefuelListNotifier extends StateNotifier<AsyncValue<List<Refuel>>> {
     _loadRefuels();
   }
 
+  Future<void> refresh() async {
+    await _loadRefuels();
+  }
+
   Future<void> _loadRefuels() async {
     try {
       final items = await RefuelDatabase.instance.fetchRefuels();

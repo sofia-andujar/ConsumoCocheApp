@@ -225,4 +225,26 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get catalan => 'Català';
+
+  @override
+  String get importData => 'Importar dades';
+
+  @override
+  String get importDataDescription =>
+      'Importa els repostatges històrics des de les dades incloses a l\'aplicació. Aquesta acció només es pot fer una vegada.';
+
+  @override
+  String get importDataButton => 'Importar';
+
+  @override
+  String get importDataDone => 'Dades importades';
+
+  @override
+  String get importDataConfirm =>
+      'Vols importar els repostatges històrics? Les dades s\'afegiran als ja existents.';
+
+  @override
+  String importDataSuccess(int count) {
+    return 'S\'han importat $count repostatges';
+  }
 }

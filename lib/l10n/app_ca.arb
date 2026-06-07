@@ -137,5 +137,23 @@
 
   "english": "English",
 
-  "catalan": "Català"
+  "catalan": "Català",
+
+  "importData": "Importar dades",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Importa els repostatges històrics des de les dades incloses a l'aplicació. Aquesta acció només es pot fer una vegada.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataButton": "Importar",
+  "@importDataButton": {"description": "Import data button label"},
+
+  "importDataDone": "Dades importades",
+  "@importDataDone": {"description": "Import data already done message"},
+
+  "importDataConfirm": "Vols importar els repostatges històrics? Les dades s'afegiran als ja existents.",
+  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
+
+  "importDataSuccess": "S'han importat {count} repostatges",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
 }

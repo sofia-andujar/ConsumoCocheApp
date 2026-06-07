@@ -137,5 +137,23 @@
 
   "english": "English",
 
-  "catalan": "Català"
+  "catalan": "Català",
+
+  "importData": "Import data",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Import historical refueling data from the built-in dataset. This action can only be performed once.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataButton": "Import",
+  "@importDataButton": {"description": "Import data button label"},
+
+  "importDataDone": "Data imported",
+  "@importDataDone": {"description": "Import data already done message"},
+
+  "importDataConfirm": "Do you want to import historical refueling data? The data will be added to any existing records.",
+  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
+
+  "importDataSuccess": "Imported {count} refuels",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
 }

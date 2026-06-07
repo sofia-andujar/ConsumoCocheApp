@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/import_provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/refuel_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   static const routeName = '/settings';
 
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _importing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(themeSettingsProvider);
     final currentLocale = ref.watch(localeProvider);
+    final importState = ref.watch(importProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
@@ -133,6 +143,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          _buildImportCard(context, theme, l10n, importState),
           const SizedBox(height: 24),
           Text(
             l10n.settingsPersist,
@@ -142,5 +154,98 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildImportCard(BuildContext context, ThemeData theme, AppLocalizations l10n, AsyncValue<bool> importState) {
+    return importState.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (imported) {
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.download, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(l10n.importData, style: theme.textTheme.titleMedium),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(l10n.importDataDescription, style: theme.textTheme.bodyMedium),
+                const SizedBox(height: 12),
+                if (imported)
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                      const SizedBox(width: 8),
+                      Text(l10n.importDataDone, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green)),
+                    ],
+                  )
+                else
+                  _importing
+                      ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)))
+                      : SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: _doImport,
+                            icon: const Icon(Icons.file_download, size: 18),
+                            label: Text(l10n.importDataButton),
+                          ),
+                        ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _doImport() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.importData),
+        content: Text(AppLocalizations.of(context)!.importDataConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.importDataButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _importing = true);
+
+    try {
+      final count = await ref.read(importProvider.notifier).importFromAssets();
+      await ref.read(refuelListProvider.notifier).refresh();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.importDataSuccess(count))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorPrefix(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _importing = false);
+      }
+    }
   }
 }

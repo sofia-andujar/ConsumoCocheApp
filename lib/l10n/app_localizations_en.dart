@@ -223,4 +223,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalan => 'Català';
+
+  @override
+  String get importData => 'Import data';
+
+  @override
+  String get importDataDescription =>
+      'Import historical refueling data from the built-in dataset. This action can only be performed once.';
+
+  @override
+  String get importDataButton => 'Import';
+
+  @override
+  String get importDataDone => 'Data imported';
+
+  @override
+  String get importDataConfirm =>
+      'Do you want to import historical refueling data? The data will be added to any existing records.';
+
+  @override
+  String importDataSuccess(int count) {
+    return 'Imported $count refuels';
+  }
 }

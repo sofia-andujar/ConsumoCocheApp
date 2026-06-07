@@ -206,5 +206,23 @@
   "@english": {"description": "English language option"},
 
   "catalan": "Català",
-  "@catalan": {"description": "Catalan language option"}
+  "@catalan": {"description": "Catalan language option"},
+
+  "importData": "Importar datos",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Importa los repostajes históricos desde los datos incluidos en la aplicación. Esta acción solo se puede realizar una vez.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataButton": "Importar",
+  "@importDataButton": {"description": "Import data button label"},
+
+  "importDataDone": "Datos importados",
+  "@importDataDone": {"description": "Import data already done message"},
+
+  "importDataConfirm": "¿Deseas importar los repostajes históricos? Los datos se añadirán a los ya existentes.",
+  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
+
+  "importDataSuccess": "Se han importado {count} repostajes",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
 }

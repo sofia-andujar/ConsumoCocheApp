@@ -1,16 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/refuel.dart';
-import 'db_asset_helper.dart';
-
-// This class manages the SQLite database
 
 class RefuelDatabase {
   static const String _databaseName = 'repostajes.db';
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
   static const String _tableRefuels = 'refuels';
 
   RefuelDatabase._privateConstructor();
@@ -25,18 +23,6 @@ class RefuelDatabase {
 
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, _databaseName);
-    final dbFile = File(path);
-    final flagFile = File(join(documentsDirectory.path, '.asset_db_loaded'));
-
-    // One-time: replace old DB with pre-built asset that has comments
-    if (await dbFile.exists() && !await flagFile.exists()) {
-      await dbFile.delete();
-    }
-
-    if (!await dbFile.exists()) {
-      await copyDbFromAssets();
-      await flagFile.create(recursive: true);
-    }
 
     _database = await openDatabase(
       path,
@@ -61,12 +47,25 @@ class RefuelDatabase {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // ONE-TIME MIGRATION: Add comment column to existing records
-      // After this runs successfully once, you can remove this onUpgrade method
       final columnCheck = await db.rawQuery('PRAGMA table_info($_tableRefuels)');
       final columnNames = columnCheck.map((row) => row['name'] as String).toSet();
-      
+
       if (!columnNames.contains('comment')) {
+        await db.execute('''
+          ALTER TABLE $_tableRefuels ADD COLUMN comment TEXT NOT NULL DEFAULT ''
+        ''');
+      }
+    }
+
+    if (oldVersion < 3) {
+      final columnCheck = await db.rawQuery('PRAGMA table_info($_tableRefuels)');
+      final columnNames = columnCheck.map((row) => row['name'] as String).toSet();
+
+      if (columnNames.contains('comments') && columnNames.contains('comment')) {
+        await db.execute('''
+          UPDATE $_tableRefuels SET comment = comments WHERE comments IS NOT NULL
+        ''');
+      } else if (!columnNames.contains('comment')) {
         await db.execute('''
           ALTER TABLE $_tableRefuels ADD COLUMN comment TEXT NOT NULL DEFAULT ''
         ''');
@@ -110,5 +109,41 @@ class RefuelDatabase {
       where: 'id = ?',
       whereArgs: [refuel.id],
     );
+  }
+
+  Future<int> importFromAssets() async {
+    final byteData = await rootBundle.load('assets/repostajes.db');
+    final bytes = byteData.buffer.asUint8List();
+
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = join(tempDir.path, 'temp_import.db');
+    final tempFile = File(tempPath);
+
+    try {
+      await tempFile.writeAsBytes(bytes, flush: true);
+
+      final tempDb = await openDatabase(tempPath, readOnly: true);
+      final rows = await tempDb.query(_tableRefuels, orderBy: 'date ASC');
+      await tempDb.close();
+
+      final db = await database;
+      int count = 0;
+      for (final row in rows) {
+        final refuel = Refuel.fromMap(row);
+        await db.insert(_tableRefuels, {
+          'date': refuel.date.toIso8601String(),
+          'kilometers': refuel.kilometers,
+          'liters': refuel.liters,
+          'comment': refuel.comment,
+        });
+        count++;
+      }
+
+      return count;
+    } finally {
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+    }
   }
 }

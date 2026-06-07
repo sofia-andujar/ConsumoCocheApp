@@ -36,7 +36,7 @@ class Refuel {
       date: DateTime.parse(map['date'] as String),
       kilometers: (kmValue as num).toDouble(),
       liters: (map['liters'] as num).toDouble(),
-      comment: map['comment'] as String? ?? '',
+      comment: (map['comment'] ?? map['comments']) as String? ?? '',
     );
   }
 
