@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
@@ -12,7 +11,6 @@ import 'package:intl/intl.dart';
 
 final format = NumberFormat("#,##0.00", "es_ES");
 
-// This class controls what is displayed on the home screen
 class HomeScreen extends ConsumerWidget {
   static const routeName = '/';
 
@@ -29,6 +27,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final refuelState = ref.watch(refuelListProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -39,10 +38,6 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => Navigator.pushNamed(context, SettingsScreen.routeName),
           ),
         ],
-        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Colors.black,
-          statusBarIconBrightness: Brightness.light,
-        ),
       ),
       body: refuelState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -56,24 +51,21 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox( // Consumo medio
+                  SizedBox(
                     width: double.infinity,
                     child: Card(
                       child: InkWell(
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          HistoryScreen.routeName,
-                        ),
+                        onTap: () => Navigator.pushNamed(context, HistoryScreen.routeName),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Consumo medio', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                              Text('Consumo medio', style: theme.textTheme.titleMedium),
                               const SizedBox(height: 8),
                               Text(
                                 average > 0 ? '${format.format(average)} L/100km' : 'Añade al menos 1 repostaje',
-                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -82,7 +74,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ConsumptionChart( // Gráfico consumo
+                  ConsumptionChart(
                     refuels: sortedRefuels,
                     onTap: (ctx) => Navigator.push(
                       ctx,
@@ -92,13 +84,13 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Card( // Añadir repostaje
+                  Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Añadir repostaje', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                          Text('Añadir repostaje', style: theme.textTheme.titleLarge),
                           const SizedBox(height: 12),
                           AddRefuelForm(
                             clearOnSave: true,
@@ -112,14 +104,6 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  // const SizedBox(height: 16),
-                  // Center(
-                  //   child: ElevatedButton.icon(
-                  //     onPressed: () => Navigator.pushNamed(context, HistoryScreen.routeName),
-                  //     icon: const Icon(Icons.history),
-                  //     label: const Text('Ver historial'),
-                  //   ),
-                  // ),
                 ],
               ),
             ),

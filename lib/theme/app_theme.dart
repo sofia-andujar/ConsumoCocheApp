@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Pastel colors
-  static const Color pastelPurple = Color.fromARGB(255, 200, 150, 220); // Primary accent
+  static const Color pastelPurple = Color.fromARGB(255, 200, 150, 220);
   static const Color pastelPurpleDark = Color.fromARGB(255, 170, 120, 190);
-  static const Color pastelPink = Color.fromARGB(255, 242, 184, 206); // More readable soft pink
-  static const Color pastelBlue = Color.fromARGB(255, 148, 186, 238); // Deeper pastel blue
-  static const Color pastelGreen = Color.fromARGB(255, 142, 210, 185); // Moderate pastel green
-  static const Color pastelOrange = Color.fromARGB(255, 255, 174, 128); // Warmer pastel orange
-  static const Color pastelTeal = Color.fromARGB(255, 112, 197, 213); // Pastel teal
-  static const Color pastelCream = Color.fromARGB(255, 255, 253, 240); // Very light cream
-  static const Color pastelGray = Color.fromARGB(255, 230, 230, 235); // Soft lavender-gray
+  static const Color pastelPink = Color.fromARGB(255, 242, 184, 206);
+  static const Color pastelBlue = Color.fromARGB(255, 148, 186, 238);
+  static const Color pastelGreen = Color.fromARGB(255, 142, 210, 185);
+  static const Color pastelOrange = Color.fromARGB(255, 255, 174, 128);
+  static const Color pastelTeal = Color.fromARGB(255, 112, 197, 213);
+  static const Color pastelCream = Color.fromARGB(255, 250, 248, 242);
+  static const Color pastelGray = Color.fromARGB(255, 230, 230, 235);
+
+  // Dark mode fixed colors
+  static const Color darkBackground = Color(0xFF121220);
+  static const Color darkSurface = Color(0xFF1E1E30);
+  static const Color darkCard = Color(0xFF28283E);
+  static const Color darkOnSurface = Color(0xFFE8E0F0);
 
   static const Color defaultAccentColor = pastelPurple;
   static const List<Color> accentColors = [
@@ -30,6 +36,11 @@ class AppTheme {
   static Color _darken(Color color, [double amount = .14]) {
     final hsl = HSLColor.fromColor(color);
     return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0)).toColor();
+  }
+
+  static Color _lighten(Color color, [double amount = .12]) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0)).toColor();
   }
 
   static Color _themeBackground(Color color) {
@@ -135,6 +146,106 @@ class AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: accentColor,
         linearTrackColor: pastelGray,
+      ),
+    );
+  }
+
+  static ThemeData darkTheme(Color accentColor) {
+    final accentLight = _lighten(accentColor, 0.08);
+    final accentBorder = accentColor.withAlpha(100);
+    final accentOnColor = _onColor(accentColor);
+    final accentContainerOnColor = _onColor(accentLight);
+    const surfaceColor = darkSurface;
+    const cardColor = darkCard;
+
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: accentColor,
+      brightness: Brightness.dark,
+      secondary: pastelPink,
+      tertiary: pastelBlue,
+    ).copyWith(
+      primaryContainer: darkCard,
+      surface: surfaceColor,
+      outline: accentColor.withAlpha(100),
+      onPrimary: accentOnColor,
+      onSurface: darkOnSurface,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: darkBackground,
+      colorScheme: colorScheme,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: darkSurface,
+        foregroundColor: darkOnSurface,
+        elevation: 0,
+        centerTitle: false,
+      ),
+      cardTheme: CardThemeData(
+        color: cardColor,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shadowColor: Colors.black.withAlpha(77),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: accentColor,
+          foregroundColor: accentOnColor,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 4,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: accentColor,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: accentColor,
+          side: BorderSide(color: accentColor, width: 1.5),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkCard,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: accentColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: accentBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: accentColor, width: 2),
+        ),
+        labelStyle: TextStyle(color: accentColor),
+        prefixIconColor: accentColor,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: accentColor,
+        foregroundColor: accentOnColor,
+        elevation: 4,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: cardColor,
+        contentTextStyle: TextStyle(color: accentContainerOnColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: cardColor,
+        selectedColor: accentColor,
+        side: BorderSide(color: accentColor),
+        labelStyle: const TextStyle(color: darkOnSurface),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: accentColor,
+        linearTrackColor: darkCard,
       ),
     );
   }
