@@ -5,6 +5,7 @@ import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 import '../widgets/add_refuel_form.dart';
 import '../widgets/consumption_chart.dart';
+import 'consumption_chart_fullscreen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CONSUMO MAZDA 2 SOFIA'),
+        title: const Text('Consumo Mazda 2 Sofía'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -55,29 +56,43 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(
+                  SizedBox( // Consumo medio
                     width: double.infinity,
                     child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Consumo medio', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 8),
-                            Text(
-                              average > 0 ? '${format.format(average)} L/100km' : 'Añade al menos 1 repostaje',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                      child: InkWell(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          HistoryScreen.routeName,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Consumo medio', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 8),
+                              Text(
+                                average > 0 ? '${format.format(average)} L/100km' : 'Añade al menos 1 repostaje',
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ConsumptionChart(refuels: sortedRefuels),
+                  ConsumptionChart( // Gráfico consumo
+                    refuels: sortedRefuels,
+                    onTap: (ctx) => Navigator.push(
+                      ctx,
+                      MaterialPageRoute(
+                        builder: (_) => ConsumptionChartFullScreen(refuels: sortedRefuels),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  Card(
+                  Card( // Añadir repostaje
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -97,14 +112,14 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.pushNamed(context, HistoryScreen.routeName),
-                      icon: const Icon(Icons.history),
-                      label: const Text('Ver historial'),
-                    ),
-                  ),
+                  // const SizedBox(height: 16),
+                  // Center(
+                  //   child: ElevatedButton.icon(
+                  //     onPressed: () => Navigator.pushNamed(context, HistoryScreen.routeName),
+                  //     icon: const Icon(Icons.history),
+                  //     label: const Text('Ver historial'),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

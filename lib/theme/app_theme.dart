@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class AppTheme {
   // Pastel colors
@@ -71,9 +70,6 @@ class AppTheme {
         foregroundColor: accentOnColor,
         elevation: 0,
         centerTitle: false,
-        systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
-          statusBarColor: Colors.black,
-        ),
       ),
       cardTheme: CardThemeData(
         color: pastelCream,
