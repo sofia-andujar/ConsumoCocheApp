@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
+import 'chart_computations.dart';
+import 'chart_viewport.dart';
 
 class ConsumptionChart extends StatefulWidget {
   const ConsumptionChart({
@@ -12,9 +14,6 @@ class ConsumptionChart extends StatefulWidget {
     required this.refuels,
     this.onTap,
     this.showTitle = true,
-    this.enableAxisStretch = false,
-    this.xAxisStretch = 1.0,
-    this.yAxisStretch = 1.0,
     this.xViewportStart,
     this.xViewportEnd,
     this.maxChartHeight,
@@ -23,9 +22,6 @@ class ConsumptionChart extends StatefulWidget {
   final List<Refuel> refuels;
   final void Function(BuildContext context)? onTap;
   final bool showTitle;
-  final bool enableAxisStretch;
-  final double xAxisStretch;
-  final double yAxisStretch;
   final double? xViewportStart;
   final double? xViewportEnd;
   final double? maxChartHeight;
@@ -93,8 +89,8 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final isDark = theme.brightness == Brightness.dark;
 
     final consumptionValues = _consumptionValues();
-    final cumulativeMeanValues = _cumulativeMean(consumptionValues);
-    final ao5Values = _movingAverage(consumptionValues, 5);
+    final cumulativeMeanValues = ChartComputations.cumulativeMean(consumptionValues);
+    final ao5Values = ChartComputations.movingAverage(consumptionValues, 5);
     final visibleLines = [showConsumption, showMean, showAO5].where((item) => item).length;
 
     return Card(
@@ -114,35 +110,37 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                   child: Text(l10n.consumptionEvolution, style: theme.textTheme.titleMedium),
                 ),
               if (!widget.showTitle) const SizedBox(height: 6),
-              LayoutBuilder(builder: (context, constraints) {
-                final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
-                final preferredH = constraints.maxWidth / 1.7;
-                final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
-                final effectiveHeight = widget.maxChartHeight ?? chartHeight;
-                final chartWidth = constraints.maxWidth;
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
+                  final preferredH = constraints.maxWidth / 1.7;
+                  final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
+                  final effectiveHeight = widget.maxChartHeight ?? chartHeight;
+                  final chartWidth = constraints.maxWidth;
 
-                return SizedBox(
-                  height: effectiveHeight,
-                  child: LineChart(
-                    _buildChartData(
-                      showConsumption ? _spotsForValues(consumptionValues) : const [],
-                      showMean ? _spotsForValues(cumulativeMeanValues) : const [],
-                      showAO5 ? _spotsForValues(ao5Values) : const [],
-                      consumptionValues,
-                      cumulativeMeanValues,
-                      ao5Values,
-                      consumptionColor: consumptionColor,
-                      meanColor: meanColor,
-                      ao5Color: ao5Color,
-                      isDark: isDark,
-                      chartWidth: chartWidth,
-                      locale: locale,
+                  return SizedBox(
+                    height: effectiveHeight,
+                    child: LineChart(
+                      _buildChartData(
+                        showConsumption ? _spotsForValues(consumptionValues) : const [],
+                        showMean ? _spotsForValues(cumulativeMeanValues) : const [],
+                        showAO5 ? _spotsForValues(ao5Values) : const [],
+                        consumptionValues,
+                        cumulativeMeanValues,
+                        ao5Values,
+                        consumptionColor: consumptionColor,
+                        meanColor: meanColor,
+                        ao5Color: ao5Color,
+                        isDark: isDark,
+                        chartWidth: chartWidth,
+                        locale: locale,
+                      ),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
                     ),
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  ),
-                );
-              }),
+                  );
+                },
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
@@ -187,29 +185,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     return widget.refuels.map((fuel) => fuel.consumptionLPer100Km).toList();
   }
 
-  List<double> _cumulativeMean(List<double> values) {
-    final result = <double>[];
-    var sum = 0.0;
-    for (var i = 0; i < values.length; i++) {
-      sum += values[i];
-      result.add(sum / (i + 1));
-    }
-    return result;
-  }
-
-  List<double> _movingAverage(List<double> values, int window) {
-    final result = <double>[];
-    var sum = 0.0;
-    for (var i = 0; i < values.length; i++) {
-      sum += values[i];
-      if (i >= window) {
-        sum -= values[i - window];
-      }
-      result.add(sum / (i + 1 < window ? i + 1 : window));
-    }
-    return result;
-  }
-
   List<FlSpot> _spotsForValues(List<double> values) {
     return List<FlSpot>.generate(
       values.length,
@@ -242,19 +217,8 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final maxSpotCount = [consumptionSpots.length, meanSpots.length, ao5Spots.length].reduce(math.max);
     final maxDataX = maxSpotCount > 0 ? (maxSpotCount - 1).toDouble() : 0.0;
 
-    double defaultStartX = 0.0;
-    final now = DateTime.now();
-    final oneYearAgo = now.subtract(const Duration(days: 365));
-    final idx = widget.refuels.indexWhere((r) => !r.date.isBefore(oneYearAgo));
-    if (idx != -1) {
-      defaultStartX = idx.toDouble();
-    } else {
-      if (maxSpotCount > 12) {
-        defaultStartX = (maxSpotCount - 12).toDouble();
-      } else {
-        defaultStartX = 0.0;
-      }
-    }
+    final defaultViewport = ChartViewport.calculateDefault(widget.refuels);
+    final defaultStartX = defaultViewport.offset;
 
     final viewportStartX = (widget.xViewportStart ?? defaultStartX).clamp(0.0, maxDataX);
     final viewportEndX = (widget.xViewportEnd ?? maxDataX).clamp(0.0, maxDataX);
@@ -465,31 +429,31 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
               textSpans.add(TextSpan(
                 text: '\u25cf ',
                 style: TextStyle(color: consumptionColor, fontSize: 12, fontWeight: FontWeight.bold),
-              ));
+              ),);
               textSpans.add(TextSpan(
                 text: '${rawConsumption[index].toStringAsFixed(2)} L/100km\n',
                 style: TextStyle(color: consumptionColor, fontSize: 12),
-              ));
+              ),);
             }
             if (showMean && index < rawMean.length) {
               textSpans.add(TextSpan(
                 text: '\u25cf ',
                 style: TextStyle(color: meanColor, fontSize: 12, fontWeight: FontWeight.bold),
-              ));
+              ),);
               textSpans.add(TextSpan(
                 text: '${rawMean[index].toStringAsFixed(2)} L/100km\n',
                 style: TextStyle(color: meanColor, fontSize: 12),
-              ));
+              ),);
             }
             if (showAO5 && index < rawAO5.length) {
               textSpans.add(TextSpan(
                 text: '\u25cf ',
                 style: TextStyle(color: ao5Color, fontSize: 12, fontWeight: FontWeight.bold),
-              ));
+              ),);
               textSpans.add(TextSpan(
                 text: '${rawAO5[index].toStringAsFixed(2)} L/100km',
                 style: TextStyle(color: ao5Color, fontSize: 12),
-              ));
+              ),);
             }
 
             final item = LineTooltipItem(

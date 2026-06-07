@@ -155,5 +155,29 @@
   "@importDataConfirm": {"description": "Import data confirmation dialog message"},
 
   "importDataSuccess": "S'han importat {count} repostatges",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "unrealisticDistance": "Distància no realista (max 5000 km)",
+  "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
+
+  "unrealisticLiters": "Litres no realistes (max 200 L)",
+  "@unrealisticLiters": {"description": "Validation for unrealistic liters"},
+
+  "retry": "Reintentar",
+  "@retry": {"description": "Retry button label"},
+
+  "exportData": "Exportar dades",
+  "@exportData": {"description": "Export data card title"},
+
+  "exportDataDescription": "Exporta l'historial de repostatges com a fitxer CSV.",
+  "@exportDataDescription": {"description": "Export data card description"},
+
+  "exportDataCsv": "Exportar CSV",
+  "@exportDataCsv": {"description": "Export CSV button label"},
+
+  "exportDataSuccess": "Fitxer exportat",
+  "@exportDataSuccess": {"description": "Export data success message"},
+
+  "exportDataError": "Error en l'exportació",
+  "@exportDataError": {"description": "Export data error message"}
 }

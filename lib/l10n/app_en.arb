@@ -155,5 +155,29 @@
   "@importDataConfirm": {"description": "Import data confirmation dialog message"},
 
   "importDataSuccess": "Imported {count} refuels",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "unrealisticDistance": "Unrealistic distance (max 5000 km)",
+  "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
+
+  "unrealisticLiters": "Unrealistic liters (max 200 L)",
+  "@unrealisticLiters": {"description": "Validation for unrealistic liters"},
+
+  "retry": "Retry",
+  "@retry": {"description": "Retry button label"},
+
+  "exportData": "Export data",
+  "@exportData": {"description": "Export data card title"},
+
+  "exportDataDescription": "Export refuel history as a CSV file.",
+  "@exportDataDescription": {"description": "Export data card description"},
+
+  "exportDataCsv": "Export CSV",
+  "@exportDataCsv": {"description": "Export CSV button label"},
+
+  "exportDataSuccess": "File exported",
+  "@exportDataSuccess": {"description": "Export data success message"},
+
+  "exportDataError": "Export error",
+  "@exportDataError": {"description": "Export data error message"}
 }

@@ -108,9 +108,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             action: SnackBarAction(
               label: l10n.undo,
               onPressed: () async {
-                for (final r in refuels) {
-                  await ref.read(refuelListProvider.notifier).restoreRefuel(r);
-                }
+                await ref.read(refuelListProvider.notifier).restoreAllRefuels(refuels);
               },
             ),
           ),
@@ -155,7 +153,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             action: SnackBarAction(
               label: l10n.undo,
               onPressed: () {
-                ref.read(refuelListProvider.notifier).restoreRefuel(item);
+                ref.read(refuelListProvider.notifier).addRefuel(item);
               },
             ),
           ),
@@ -349,7 +347,20 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           Expanded(
             child: refuelState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(l10n.errorPrefix(e.toString()))),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l10n.errorPrefix(e.toString())),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () => ref.read(refuelListProvider.notifier).refresh(),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l10n.retry),
+                    ),
+                  ],
+                ),
+              ),
               data: (refuels) {
                 if (refuels.isEmpty) {
                   return Center(

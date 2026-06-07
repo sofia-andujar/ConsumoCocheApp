@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -27,10 +28,8 @@ Future<void> copyDbFromAssets({
     final bytes = data.buffer.asUint8List();
     await file.create(recursive: true);
     await file.writeAsBytes(bytes, flush: true);
-    // ignore: avoid_print
-    print('Copied asset DB to $dbPath');
+    debugPrint('Copied asset DB to $dbPath');
   } catch (e) {
-    // ignore: avoid_print
-    print('No bundled DB found at $assetPath or failed to copy: $e');
+    debugPrint('No bundled DB found at $assetPath or failed to copy: $e');
   }
 }

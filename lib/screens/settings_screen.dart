@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/export_service.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/import_provider.dart';
 import '../providers/locale_provider.dart';
@@ -104,7 +105,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   color: ThemeData.estimateBrightnessForColor(color) == Brightness.dark
                                       ? Colors.white
                                       : Colors.black,
-                                  size: 22)
+                                  size: 22,
+                                )
                               : null,
                         ),
                       );
@@ -145,6 +147,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 16),
           _buildImportCard(context, theme, l10n, importState),
+          const SizedBox(height: 16),
+          _buildExportCard(context, theme, l10n),
           const SizedBox(height: 24),
           Text(
             l10n.settingsPersist,
@@ -204,6 +208,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Widget _buildExportCard(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.upload, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(l10n.exportData, style: theme.textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(l10n.exportDataDescription, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _doExport,
+                icon: const Icon(Icons.file_upload, size: 18),
+                label: Text(l10n.exportDataCsv),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _doImport() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -245,6 +280,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } finally {
       if (mounted) {
         setState(() => _importing = false);
+      }
+    }
+  }
+
+  Future<void> _doExport() async {
+    final refuels = ref.read(refuelListProvider).valueOrNull ?? [];
+    if (refuels.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.noRefuelsRegistered)),
+        );
+      }
+      return;
+    }
+
+    try {
+      final locale = Localizations.localeOf(context).toString();
+      final path = await ExportService.exportToCsv(refuels, locale: locale);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.exportDataSuccess}: $path')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.exportDataError}: $e')),
+        );
       }
     }
   }

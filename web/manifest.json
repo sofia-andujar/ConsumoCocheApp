@@ -1,11 +1,11 @@
 {
-    "name": "temp_app",
-    "short_name": "temp_app",
+    "name": "Calculadora Consumo Mazda 2",
+    "short_name": "Consumo Mazda 2",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "App para calcular el consumo medio del coche.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

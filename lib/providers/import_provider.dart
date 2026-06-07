@@ -5,13 +5,16 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/refuel_database.dart';
+import 'refuel_provider.dart';
 
 final importProvider = StateNotifierProvider<ImportNotifier, AsyncValue<bool>>((ref) {
-  return ImportNotifier();
+  return ImportNotifier(ref.watch(refuelDatabaseProvider));
 });
 
 class ImportNotifier extends StateNotifier<AsyncValue<bool>> {
-  ImportNotifier() : super(const AsyncValue.loading()) {
+  final RefuelDatabase _database;
+
+  ImportNotifier(this._database) : super(const AsyncValue.loading()) {
     _checkStatus();
   }
 
@@ -36,7 +39,7 @@ class ImportNotifier extends StateNotifier<AsyncValue<bool>> {
   }
 
   Future<int> importFromAssets() async {
-    final count = await RefuelDatabase.instance.importFromAssets();
+    final count = await _database.importFromAssets();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('asset_imported', true);
     state = const AsyncValue.data(true);

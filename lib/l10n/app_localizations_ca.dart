@@ -247,4 +247,29 @@ class AppLocalizationsCa extends AppLocalizations {
   String importDataSuccess(int count) {
     return 'S\'han importat $count repostatges';
   }
+
+  @override
+  String get unrealisticDistance => 'Distància no realista (max 5000 km)';
+
+  @override
+  String get unrealisticLiters => 'Litres no realistes (max 200 L)';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get exportData => 'Exportar dades';
+
+  @override
+  String get exportDataDescription =>
+      'Exporta l\'historial de repostatges com a fitxer CSV.';
+
+  @override
+  String get exportDataCsv => 'Exportar CSV';
+
+  @override
+  String get exportDataSuccess => 'Fitxer exportat';
+
+  @override
+  String get exportDataError => 'Error en l\'exportació';
 }

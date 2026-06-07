@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,6 +32,11 @@ class RefuelDatabase {
       onUpgrade: _onUpgrade,
     );
     return _database!;
+  }
+
+  @visibleForTesting
+  Future<void> setDatabase(Database db) async {
+    _database = db;
   }
 
   Future<void> _onCreate(Database db, int version) async {

@@ -82,8 +82,8 @@ class AppTheme {
         foregroundColor: accentOnColor,
         elevation: 0,
         centerTitle: false,
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.black,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: backgroundColor,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
         ),
@@ -188,7 +188,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.black,
+          statusBarColor: darkBackground,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
         ),

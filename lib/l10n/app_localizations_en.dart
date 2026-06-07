@@ -245,4 +245,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String importDataSuccess(int count) {
     return 'Imported $count refuels';
   }
+
+  @override
+  String get unrealisticDistance => 'Unrealistic distance (max 5000 km)';
+
+  @override
+  String get unrealisticLiters => 'Unrealistic liters (max 200 L)';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get exportData => 'Export data';
+
+  @override
+  String get exportDataDescription => 'Export refuel history as a CSV file.';
+
+  @override
+  String get exportDataCsv => 'Export CSV';
+
+  @override
+  String get exportDataSuccess => 'File exported';
+
+  @override
+  String get exportDataError => 'Export error';
 }

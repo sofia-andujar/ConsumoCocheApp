@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
+import '../utils/formatters.dart';
 
 class RefuelTile extends StatelessWidget {
   final Refuel refuel;
@@ -20,7 +21,7 @@ class RefuelTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final dateText = DateFormat.yMMMd(locale).format(refuel.date);
-    final format = NumberFormat("#,##0.00", locale);
+    final format = decimalFormat(locale);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -42,15 +43,15 @@ class RefuelTile extends StatelessWidget {
                   ),
                 ),
 
-                Expanded (
+                Expanded(
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.ideographic,
-                  children: [
-                    Text('${format.format(refuel.kilometers)} km'),
-                    Text('${format.format(refuel.liters)} L'),
-                  ],
-                  )
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.ideographic,
+                    children: [
+                      Text('${format.format(refuel.kilometers)} km'),
+                      Text('${format.format(refuel.liters)} L'),
+                    ],
+                  ),
                 ),
                 
                 IconButton(

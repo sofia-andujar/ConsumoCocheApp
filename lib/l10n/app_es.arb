@@ -224,5 +224,29 @@
   "@importDataConfirm": {"description": "Import data confirmation dialog message"},
 
   "importDataSuccess": "Se han importado {count} repostajes",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}}
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "unrealisticDistance": "Distancia no realista (max 5000 km)",
+  "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
+
+  "unrealisticLiters": "Litros no realistas (max 200 L)",
+  "@unrealisticLiters": {"description": "Validation for unrealistic liters"},
+
+  "retry": "Reintentar",
+  "@retry": {"description": "Retry button label"},
+
+  "exportData": "Exportar datos",
+  "@exportData": {"description": "Export data card title"},
+
+  "exportDataDescription": "Exporta el historial de repostajes como archivo CSV.",
+  "@exportDataDescription": {"description": "Export data card description"},
+
+  "exportDataCsv": "Exportar CSV",
+  "@exportDataCsv": {"description": "Export CSV button label"},
+
+  "exportDataSuccess": "Archivo exportado",
+  "@exportDataSuccess": {"description": "Export data success message"},
+
+  "exportDataError": "Error al exportar",
+  "@exportDataError": {"description": "Export data error message"}
 }

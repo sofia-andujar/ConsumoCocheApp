@@ -549,6 +549,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Se han importado {count} repostajes'**
   String importDataSuccess(int count);
+
+  /// Validation for unrealistic distance
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia no realista (max 5000 km)'**
+  String get unrealisticDistance;
+
+  /// Validation for unrealistic liters
+  ///
+  /// In es, this message translates to:
+  /// **'Litros no realistas (max 200 L)'**
+  String get unrealisticLiters;
+
+  /// Retry button label
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get retry;
+
+  /// Export data card title
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar datos'**
+  String get exportData;
+
+  /// Export data card description
+  ///
+  /// In es, this message translates to:
+  /// **'Exporta el historial de repostajes como archivo CSV.'**
+  String get exportDataDescription;
+
+  /// Export CSV button label
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar CSV'**
+  String get exportDataCsv;
+
+  /// Export data success message
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo exportado'**
+  String get exportDataSuccess;
+
+  /// Export data error message
+  ///
+  /// In es, this message translates to:
+  /// **'Error al exportar'**
+  String get exportDataError;
 }
 
 class _AppLocalizationsDelegate

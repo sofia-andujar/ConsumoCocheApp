@@ -13,6 +13,35 @@ class Refuel {
     this.comment = '',
   });
 
+  Refuel copyWith({
+    int? id,
+    DateTime? date,
+    double? kilometers,
+    double? liters,
+    String? comment,
+  }) {
+    return Refuel(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      kilometers: kilometers ?? this.kilometers,
+      liters: liters ?? this.liters,
+      comment: comment ?? this.comment,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Refuel &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          date == other.date &&
+          kilometers == other.kilometers &&
+          liters == other.liters &&
+          comment == other.comment;
+
+  @override
+  int get hashCode => Object.hash(id, date, kilometers, liters, comment);
 
   Map<String, Object?> toMap() {
     return {
@@ -24,18 +53,20 @@ class Refuel {
     };
   }
 
-
-
   factory Refuel.fromMap(Map<String, Object?> map) {
     final kmValue = map['kilometers'] ?? map['km'];
     if (kmValue == null) {
       throw StateError('Refuel map missing kilometers value: $map');
     }
+    final litersValue = map['liters'];
+    if (litersValue == null) {
+      throw StateError('Refuel map missing liters value: $map');
+    }
     return Refuel(
       id: map['id'] as int?,
       date: DateTime.parse(map['date'] as String),
       kilometers: (kmValue as num).toDouble(),
-      liters: (map['liters'] as num).toDouble(),
+      liters: (litersValue as num).toDouble(),
       comment: (map['comment'] ?? map['comments']) as String? ?? '',
     );
   }

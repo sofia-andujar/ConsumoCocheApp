@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
@@ -38,16 +37,9 @@ class GasApp extends ConsumerWidget {
         SettingsScreen.routeName: (context) => const SettingsScreen(),
       },
       builder: (context, child) {
-        SystemChrome.setSystemUIOverlayStyle(
-          const SystemUiOverlayStyle(
-            statusBarColor: Colors.black,
-            statusBarIconBrightness: Brightness.light,
-            statusBarBrightness: Brightness.dark,
-          ),
-        );
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: child!,
+          child: child ?? const SizedBox.shrink(),
         );
       },
     );

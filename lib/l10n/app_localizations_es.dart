@@ -246,4 +246,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String importDataSuccess(int count) {
     return 'Se han importado $count repostajes';
   }
+
+  @override
+  String get unrealisticDistance => 'Distancia no realista (max 5000 km)';
+
+  @override
+  String get unrealisticLiters => 'Litros no realistas (max 200 L)';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get exportData => 'Exportar datos';
+
+  @override
+  String get exportDataDescription =>
+      'Exporta el historial de repostajes como archivo CSV.';
+
+  @override
+  String get exportDataCsv => 'Exportar CSV';
+
+  @override
+  String get exportDataSuccess => 'Archivo exportado';
+
+  @override
+  String get exportDataError => 'Error al exportar';
 }

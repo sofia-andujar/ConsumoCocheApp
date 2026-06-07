@@ -149,6 +149,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
                       final n = double.tryParse(value);
                       if (n == null) return l10n.invalid;
                       if (n <= 0) return l10n.mustBeGreaterThanZero;
+                      if (n > 5000) return l10n.unrealisticDistance;
                       return null;
                     },
                   ),
@@ -170,6 +171,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
                       final n = double.tryParse(value);
                       if (n == null) return l10n.invalid;
                       if (n <= 0) return l10n.mustBeGreaterThanZero;
+                      if (n > 200) return l10n.unrealisticLiters;
                       return null;
                     },
                   ),
@@ -180,11 +182,13 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
             TextFormField(
               controller: _commentController,
               keyboardType: TextInputType.text,
+              maxLength: 200,
               decoration: InputDecoration(
                 labelText: l10n.commentOptional,
                 border: const OutlineInputBorder(),
                 isDense: true,
                 hintText: l10n.addNote,
+                counterText: '',
               ),
             ),
             const SizedBox(height: 12),
@@ -225,6 +229,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               final n = double.tryParse(value);
               if (n == null) return l10n.invalidNumericValue;
               if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
+              if (n > 5000) return l10n.unrealisticDistance;
               return null;
             },
           ),
@@ -243,6 +248,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               final n = double.tryParse(value);
               if (n == null) return l10n.invalidNumericValue;
               if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
+              if (n > 200) return l10n.unrealisticLiters;
               return null;
             },
           ),
@@ -250,10 +256,12 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
           TextFormField(
             controller: _commentController,
             keyboardType: TextInputType.text,
+            maxLength: 200,
             decoration: InputDecoration(
               labelText: l10n.commentOptional,
               border: const OutlineInputBorder(),
               hintText: l10n.addNoteFull,
+              counterText: '',
             ),
           ),
           const SizedBox(height: 24),

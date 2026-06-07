@@ -9,6 +9,7 @@ This helper allows you to import a one-time Excel spreadsheet into a SQLite data
    - `date`
    - `kilometers`
    - `liters`
+   - `comment`
 3. Run the import script:
 
 ```bash
@@ -38,3 +39,4 @@ If you are running on a mobile emulator, copy the file to the device using the a
   - `date` TEXT NOT NULL
   - `kilometers` REAL NOT NULL
   - `liters` REAL NOT NULL
+  - `comment` TEXT NOT NULL DEFAULT ''
