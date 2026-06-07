@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 import '../widgets/add_refuel_form.dart';
+import '../widgets/consumption_chart.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'package:intl/intl.dart';
@@ -47,6 +48,7 @@ class HomeScreen extends ConsumerWidget {
         error: (error, _) => Center(child: Text('Error: $error')),
         data: (refuels) {
           final average = _averageConsumption(refuels);
+          final sortedRefuels = [...refuels]..sort((a, b) => a.date.compareTo(b.date));
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -72,6 +74,8 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  ConsumptionChart(refuels: sortedRefuels),
                   const SizedBox(height: 16),
                   Card(
                     child: Padding(

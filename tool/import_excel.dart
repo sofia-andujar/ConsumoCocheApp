@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-const _expectedColumns = ['date', 'kilometers', 'liters'];
+const _expectedColumns = ['date', 'kilometers', 'liters','comments'];
 
 void main(List<String> args) {
   if (args.isEmpty || args.contains('-h') || args.contains('--help')) {
@@ -66,11 +66,12 @@ void main(List<String> args) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date TEXT NOT NULL,
         kilometers REAL NOT NULL,
-        liters REAL NOT NULL
+        liters REAL NOT NULL,
+        comments TEXT
       )
     ''');
 
-    final insertStmt = db.prepare('INSERT INTO refuels(date, kilometers, liters) VALUES (?, ?, ?)');
+    final insertStmt = db.prepare('INSERT INTO refuels(date, kilometers, liters, comments) VALUES (?, ?, ?, ?)');
     var imported = 0;
 
     for (var rowIndex = 1; rowIndex < sheet.maxRows; rowIndex++) {
@@ -85,12 +86,12 @@ void main(List<String> args) {
       final dateValue = row[columnIndexes['date']!]?.value;
       final kmValue = row[columnIndexes['kilometers']!]?.value;
       final litersValue = row[columnIndexes['liters']!]?.value;
-
+      final commentsValue = row[columnIndexes['comments']!]?.value;
       final date = _parseDate(dateValue);
       final kilometers = _parseDouble(kmValue);
       final liters = _parseDouble(litersValue);
 
-      insertStmt.execute([date.toIso8601String(), kilometers, liters]);
+      insertStmt.execute([date.toIso8601String(), kilometers, liters, commentsValue?.toString()]);
       imported++;
     }
 
