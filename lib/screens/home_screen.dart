@@ -107,6 +107,7 @@ class HomeScreen extends ConsumerWidget {
             height: 280,
             child: ZoomableChart(
               refuels: sortedRefuels,
+              interactive: false,
               onTap: (ctx) => Navigator.push(
                 ctx,
                 MaterialPageRoute(

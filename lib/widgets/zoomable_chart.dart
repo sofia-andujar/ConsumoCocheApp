@@ -10,12 +10,14 @@ class ZoomableChart extends StatefulWidget {
   final List<Refuel> refuels;
   final void Function(BuildContext context)? onTap;
   final double minChartHeight;
+  final bool interactive;
 
   const ZoomableChart({
     super.key,
     required this.refuels,
     this.onTap,
     this.minChartHeight = 160.0,
+    this.interactive = true,
   });
 
   @override
@@ -47,41 +49,50 @@ class _ZoomableChartState extends State<ZoomableChart> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    return GestureDetector(
-      onDoubleTap: _resetViewport,
-      onScaleStart: (details) {
-        _initialXZoom = _xZoom;
+
+    Widget chart = LayoutBuilder(
+      builder: (context, constraints) {
+        final safeHeight = math.max(widget.minChartHeight, constraints.maxHeight - 100.0);
+        final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
+        final viewportWidth = maxDataX > 0 ? maxDataX / _xZoom : 0.0;
+        final startX = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth)).toDouble();
+        final endX = (startX + viewportWidth).clamp(0.0, maxDataX).toDouble();
+        return ConsumptionChart(
+          refuels: widget.refuels,
+          showTitle: false,
+          xViewportStart: startX,
+          xViewportEnd: endX,
+          maxChartHeight: safeHeight,
+          onTap: widget.onTap,
+        );
       },
-      onScaleUpdate: (details) {
-        setState(() {
-          final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
-          final newZoom = (_initialXZoom * details.scale).clamp(1.0, 3.0);
-          final viewportWidth = maxDataX > 0 ? maxDataX / newZoom : 0.0;
-          final chartWidth = MediaQuery.of(context).size.width - 32.0;
-          final dxUnits = chartWidth > 0 ? details.focalPointDelta.dx / chartWidth * viewportWidth : 0.0;
-          _xZoom = newZoom;
-          _xOffset = (_xOffset - dxUnits).clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
-        });
-      },
-      child: Stack(
+    );
+
+    if (widget.interactive) {
+      chart = GestureDetector(
+        onDoubleTap: _resetViewport,
+        onScaleStart: (details) {
+          _initialXZoom = _xZoom;
+        },
+        onScaleUpdate: (details) {
+          setState(() {
+            final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
+            final newZoom = (_initialXZoom * details.scale).clamp(1.0, 3.0);
+            final viewportWidth = maxDataX > 0 ? maxDataX / newZoom : 0.0;
+            final chartWidth = MediaQuery.of(context).size.width - 32.0;
+            final dxUnits = chartWidth > 0 ? details.focalPointDelta.dx / chartWidth * viewportWidth : 0.0;
+            _xZoom = newZoom;
+            _xOffset = (_xOffset - dxUnits).clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
+          });
+        },
+        child: chart,
+      );
+    }
+
+    if (widget.interactive) {
+      chart = Stack(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final safeHeight = math.max(widget.minChartHeight, constraints.maxHeight - 100.0);
-              final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
-              final viewportWidth = maxDataX > 0 ? maxDataX / _xZoom : 0.0;
-              final startX = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth)).toDouble();
-              final endX = (startX + viewportWidth).clamp(0.0, maxDataX).toDouble();
-              return ConsumptionChart(
-                refuels: widget.refuels,
-                showTitle: false,
-                xViewportStart: startX,
-                xViewportEnd: endX,
-                maxChartHeight: safeHeight,
-                onTap: widget.onTap,
-              );
-            },
-          ),
+          chart,
           Positioned(
             top: 8,
             right: 8,
@@ -112,7 +123,9 @@ class _ZoomableChartState extends State<ZoomableChart> {
               ),
             ),
         ],
-      ),
-    );
+      );
+    }
+
+    return chart;
   }
 }

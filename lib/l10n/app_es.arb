@@ -208,24 +208,6 @@
   "catalan": "Català",
   "@catalan": {"description": "Catalan language option"},
 
-  "importData": "Importar datos",
-  "@importData": {"description": "Import data card title"},
-
-  "importDataDescription": "Importa los repostajes históricos desde los datos incluidos en la aplicación. Esta acción solo se puede realizar una vez.",
-  "@importDataDescription": {"description": "Import data card description"},
-
-  "importDataButton": "Importar",
-  "@importDataButton": {"description": "Import data button label"},
-
-  "importDataDone": "Datos importados",
-  "@importDataDone": {"description": "Import data already done message"},
-
-  "importDataConfirm": "¿Deseas importar los repostajes históricos? Los datos se añadirán a los ya existentes.",
-  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
-
-  "importDataSuccess": "Se han importado {count} repostajes",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
-
   "unrealisticDistance": "Distancia no realista (max 5000 km)",
   "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
 
@@ -248,5 +230,65 @@
   "@exportDataSuccess": {"description": "Export data success message"},
 
   "exportDataError": "Error al exportar",
-  "@exportDataError": {"description": "Export data error message"}
+  "@exportDataError": {"description": "Export data error message"},
+
+  "googleAccount": "Cuenta de Google",
+  "@googleAccount": {"description": "Google account section title"},
+
+  "signInWithGoogle": "Iniciar sesión con Google",
+  "@signInWithGoogle": {"description": "Sign in with Google button"},
+
+  "signedInAs": "Sesión: {email}",
+  "@signedInAs": {"description": "Shows signed in email", "placeholders": {"email": {"type": "String"}}},
+
+  "signOut": "Cerrar sesión",
+  "@signOut": {"description": "Sign out button"},
+
+  "backupData": "Respaldar datos",
+  "@backupData": {"description": "Backup data card title"},
+
+  "backupDataDescription": "Guarda una copia del historial en Google Drive.",
+  "@backupDataDescription": {"description": "Backup data card description"},
+
+  "backupButton": "Respaldar",
+  "@backupButton": {"description": "Backup button label"},
+
+  "backupSuccess": "Datos respaldados correctamente",
+  "@backupSuccess": {"description": "Backup success message"},
+
+  "backupError": "Error al respaldar: {error}",
+  "@backupError": {"description": "Backup error message", "placeholders": {"error": {"type": "String"}}},
+
+  "restoreData": "Restaurar datos",
+  "@restoreData": {"description": "Restore data card title"},
+
+  "restoreDataDescription": "Restaura el historial desde Google Drive.",
+  "@restoreDataDescription": {"description": "Restore data card description"},
+
+  "restoreButton": "Restaurar",
+  "@restoreButton": {"description": "Restore button label"},
+
+  "restoreConfirm": "¿Restaurar datos? Los datos actuales serán reemplazados.",
+  "@restoreConfirm": {"description": "Restore confirmation dialog message"},
+
+  "restoreSuccess": "Datos restaurados correctamente",
+  "@restoreSuccess": {"description": "Restore success message"},
+
+  "restoreError": "Error al restaurar: {error}",
+  "@restoreError": {"description": "Restore error message", "placeholders": {"error": {"type": "String"}}},
+
+  "noBackupFound": "No se encontró ningún respaldo. Haz un respaldo primero.",
+  "@noBackupFound": {"description": "No backup found message"},
+
+  "signInRequired": "Inicia sesión con Google para respaldar tus datos.",
+  "@signInRequired": {"description": "Sign in required message"},
+
+  "driveScopeRequired": "Concede permiso a Google Drive para respaldar tus datos.",
+  "@driveScopeRequired": {"description": "Google Drive permission required message"},
+
+  "confirmReplaceData": "Los datos actuales serán reemplazados por los del respaldo.",
+  "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
+
+  "lastBackup": "Último respaldo: {date}",
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
 }

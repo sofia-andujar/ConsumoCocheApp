@@ -237,9 +237,10 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
         ? 1.0
         : visibleValues.reduce((a, b) => a > b ? a : b);
     final rawRange = math.max(0.5, rawMaxY - rawMinY);
-    final padding = rawRange * 0.1;
-    final minY = math.max(0.0, rawMinY - padding);
-    final maxY = rawMaxY + padding;
+    final topPadding = rawRange * 1;
+    final bottomPadding = rawRange * 0.5;
+    final minY = math.max(0.0, rawMinY - bottomPadding);
+    final maxY = rawMaxY + topPadding;
 
     final yRange = maxY - minY;
     final roughInterval = yRange / 5;
@@ -258,7 +259,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     }
 
     final visibleRange = (viewportEndX - viewportStartX).clamp(1.0, maxDataX + 1.0);
-    const labelWidth = 35.0;
+    const labelWidth = 45.0;
     final maxLabels = (chartWidth / labelWidth).floor().clamp(2, 20);
     final bottomInterval = ((visibleRange / maxLabels).ceil() as num).clamp(1.0, visibleRange).toDouble();
 
@@ -320,14 +321,13 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
               final index = value.toInt();
               if (index < viewportStartX || index > viewportEndX) return const SizedBox.shrink();
               if (index < 0 || index >= widget.refuels.length) return const SizedBox.shrink();
+              if (value - viewportStartX < 1.0 || viewportEndX - value < 1.0) {
+                return const SizedBox.shrink();
+              }
               final label = _formatDate(widget.refuels[index].date, locale);
-              final isAlternate = (index % (bottomInterval * 2).ceilToDouble().toInt()).abs() % 2 == 0;
               return Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Transform.rotate(
-                  angle: isAlternate ? 0 : -0.3,
-                  child: Text(label, style: const TextStyle(fontSize: 9)),
-                ),
+                child: Text(label, style: const TextStyle(fontSize: 9)),
               );
             },
           ),
@@ -336,8 +336,11 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           sideTitles: SideTitles(
             showTitles: true,
             interval: yInterval,
-            reservedSize: 40,
+            reservedSize: 20,
             getTitlesWidget: (value, meta) {
+              if (value - minY < yInterval * 0.01 || maxY - value < yInterval * 0.01) {
+                return const SizedBox.shrink();
+              }
               return Text(
                 value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1),
                 style: TextStyle(fontSize: 10, color: isDark ? Colors.white.withAlpha(180) : Colors.black.withAlpha(180)),

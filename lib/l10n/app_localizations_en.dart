@@ -225,28 +225,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalan => 'Català';
 
   @override
-  String get importData => 'Import data';
-
-  @override
-  String get importDataDescription =>
-      'Import historical refueling data from the built-in dataset. This action can only be performed once.';
-
-  @override
-  String get importDataButton => 'Import';
-
-  @override
-  String get importDataDone => 'Data imported';
-
-  @override
-  String get importDataConfirm =>
-      'Do you want to import historical refueling data? The data will be added to any existing records.';
-
-  @override
-  String importDataSuccess(int count) {
-    return 'Imported $count refuels';
-  }
-
-  @override
   String get unrealisticDistance => 'Unrealistic distance (max 5000 km)';
 
   @override
@@ -269,4 +247,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportDataError => 'Export error';
+
+  @override
+  String get googleAccount => 'Google Account';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String signedInAs(String email) {
+    return 'Signed in: $email';
+  }
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get backupData => 'Backup data';
+
+  @override
+  String get backupDataDescription =>
+      'Save a backup of your history to Google Drive.';
+
+  @override
+  String get backupButton => 'Backup';
+
+  @override
+  String get backupSuccess => 'Data backed up successfully';
+
+  @override
+  String backupError(String error) {
+    return 'Backup error: $error';
+  }
+
+  @override
+  String get restoreData => 'Restore data';
+
+  @override
+  String get restoreDataDescription =>
+      'Restore your history from Google Drive.';
+
+  @override
+  String get restoreButton => 'Restore';
+
+  @override
+  String get restoreConfirm =>
+      'Restore data? Your current data will be replaced.';
+
+  @override
+  String get restoreSuccess => 'Data restored successfully';
+
+  @override
+  String restoreError(String error) {
+    return 'Restore error: $error';
+  }
+
+  @override
+  String get noBackupFound => 'No backup found. Create a backup first.';
+
+  @override
+  String get signInRequired => 'Sign in with Google to backup your data.';
+
+  @override
+  String get driveScopeRequired =>
+      'Grant Google Drive permission to backup your data.';
+
+  @override
+  String get confirmReplaceData =>
+      'Your current data will be replaced by the backup.';
+
+  @override
+  String lastBackup(String date) {
+    return 'Last backup: $date';
+  }
 }

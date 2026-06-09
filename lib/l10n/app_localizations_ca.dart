@@ -227,28 +227,6 @@ class AppLocalizationsCa extends AppLocalizations {
   String get catalan => 'Català';
 
   @override
-  String get importData => 'Importar dades';
-
-  @override
-  String get importDataDescription =>
-      'Importa els repostatges històrics des de les dades incloses a l\'aplicació. Aquesta acció només es pot fer una vegada.';
-
-  @override
-  String get importDataButton => 'Importar';
-
-  @override
-  String get importDataDone => 'Dades importades';
-
-  @override
-  String get importDataConfirm =>
-      'Vols importar els repostatges històrics? Les dades s\'afegiran als ja existents.';
-
-  @override
-  String importDataSuccess(int count) {
-    return 'S\'han importat $count repostatges';
-  }
-
-  @override
   String get unrealisticDistance => 'Distància no realista (max 5000 km)';
 
   @override
@@ -272,4 +250,79 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get exportDataError => 'Error en l\'exportació';
+
+  @override
+  String get googleAccount => 'Compte de Google';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sessió amb Google';
+
+  @override
+  String signedInAs(String email) {
+    return 'Sessió: $email';
+  }
+
+  @override
+  String get signOut => 'Tancar sessió';
+
+  @override
+  String get backupData => 'Fer còpia de seguretat';
+
+  @override
+  String get backupDataDescription =>
+      'Desa una còpia de l\'historial a Google Drive.';
+
+  @override
+  String get backupButton => 'Fer còpia';
+
+  @override
+  String get backupSuccess => 'Dades desades correctament';
+
+  @override
+  String backupError(String error) {
+    return 'Error en la còpia: $error';
+  }
+
+  @override
+  String get restoreData => 'Restaurar dades';
+
+  @override
+  String get restoreDataDescription =>
+      'Restaura l\'historial des de Google Drive.';
+
+  @override
+  String get restoreButton => 'Restaurar';
+
+  @override
+  String get restoreConfirm =>
+      'Restaurar dades? Les dades actuals seran reemplaçades.';
+
+  @override
+  String get restoreSuccess => 'Dades restaurades correctament';
+
+  @override
+  String restoreError(String error) {
+    return 'Error en restaurar: $error';
+  }
+
+  @override
+  String get noBackupFound =>
+      'No s\'ha trobat cap còpia. Fes una còpia primer.';
+
+  @override
+  String get signInRequired =>
+      'Inicia sessió amb Google per fer còpia de seguretat.';
+
+  @override
+  String get driveScopeRequired =>
+      'Concedeix permís a Google Drive per fer còpia de seguretat.';
+
+  @override
+  String get confirmReplaceData =>
+      'Les dades actuals seran reemplaçades per la còpia.';
+
+  @override
+  String lastBackup(String date) {
+    return 'Última còpia: $date';
+  }
 }

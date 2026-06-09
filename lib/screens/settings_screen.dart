@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../data/export_service.dart';
 import '../l10n/app_localizations.dart';
-import '../providers/import_provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/backup_provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/refuel_provider.dart';
 import '../providers/theme_provider.dart';
@@ -18,13 +20,14 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _importing = false;
+  bool _backingUp = false;
+  bool _restoring = false;
 
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(themeSettingsProvider);
     final currentLocale = ref.watch(localeProvider);
-    final importState = ref.watch(importProvider);
+    final authState = ref.watch(authProvider);
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
 
@@ -146,7 +149,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildImportCard(context, theme, l10n, importState),
+          _buildGoogleAccountCard(context, theme, l10n, authState),
           const SizedBox(height: 16),
           _buildExportCard(context, theme, l10n),
           const SizedBox(height: 24),
@@ -160,51 +163,112 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildImportCard(BuildContext context, ThemeData theme, AppLocalizations l10n, AsyncValue<bool> importState) {
-    return importState.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (imported) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.download, color: theme.colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(l10n.importData, style: theme.textTheme.titleMedium),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(l10n.importDataDescription, style: theme.textTheme.bodyMedium),
-                const SizedBox(height: 12),
-                if (imported)
-                  Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                      const SizedBox(width: 8),
-                      Text(l10n.importDataDone, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.green)),
-                    ],
-                  )
-                else
-                  _importing
-                      ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)))
-                      : SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: _doImport,
-                            icon: const Icon(Icons.file_download, size: 18),
-                            label: Text(l10n.importDataButton),
-                          ),
-                        ),
-              ],
-            ),
+  Widget _buildGoogleAccountCard(BuildContext context, ThemeData theme, AppLocalizations l10n, AsyncValue<GoogleSignInAccount?> authState) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: authState.when(
+          loading: () => const SizedBox(height: 40, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+          error: (e, _) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _cardHeader(Icons.account_circle, l10n.googleAccount, theme),
+              const SizedBox(height: 12),
+              Text(l10n.errorPrefix(e.toString()), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error)),
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                onPressed: () => ref.read(authProvider.notifier).signIn(),
+                icon: const Icon(Icons.refresh, size: 18),
+                label: Text(l10n.retry),
+              ),
+            ],
           ),
-        );
-      },
+          data: (account) {
+            if (account == null) {
+              return _buildSignedOutCard(context, theme, l10n);
+            }
+            return _buildSignedInCard(context, theme, l10n, account);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignedOutCard(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _cardHeader(Icons.account_circle, l10n.googleAccount, theme),
+        const SizedBox(height: 12),
+        Text(l10n.signInRequired, style: theme.textTheme.bodyMedium),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => ref.read(authProvider.notifier).signIn(),
+            icon: const Icon(Icons.login, size: 18),
+            label: Text(l10n.signInWithGoogle),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignedInCard(BuildContext context, ThemeData theme, AppLocalizations l10n, GoogleSignInAccount account) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _cardHeader(Icons.account_circle, l10n.googleAccount, theme),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: () => ref.read(authProvider.notifier).signOut(),
+              icon: const Icon(Icons.logout, size: 16),
+              label: Text(l10n.signOut, style: const TextStyle(fontSize: 13)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.signedInAs(account.email),
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withAlpha(180)),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: _backingUp ? null : _doBackup,
+                icon: _backingUp
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.cloud_upload, size: 18),
+                label: Text(l10n.backupButton),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _restoring ? null : _doRestore,
+                icon: _restoring
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.cloud_download, size: 18),
+                label: Text(l10n.restoreButton),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _cardHeader(IconData icon, String title, ThemeData theme) {
+    return Row(
+      children: [
+        Icon(icon, color: theme.colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(title, style: theme.textTheme.titleMedium),
+      ],
     );
   }
 
@@ -239,51 +303,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Future<void> _doImport() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.importData),
-        content: Text(AppLocalizations.of(context)!.importDataConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.importDataButton),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    setState(() => _importing = true);
-
-    try {
-      final count = await ref.read(importProvider.notifier).importFromAssets();
-      await ref.read(refuelListProvider.notifier).refresh();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.importDataSuccess(count))),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorPrefix(e.toString()))),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _importing = false);
-      }
-    }
-  }
-
   Future<void> _doExport() async {
     final refuels = ref.read(refuelListProvider).valueOrNull ?? [];
     if (refuels.isEmpty) {
@@ -308,6 +327,118 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.exportDataError}: $e')),
         );
+      }
+    }
+  }
+
+  Future<void> _doBackup() async {
+    setState(() => _backingUp = true);
+
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final success = await ref.read(backupProvider.notifier).backup();
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.backupSuccess)),
+          );
+        } else {
+          final state = ref.read(backupProvider);
+          final msg = state.message;
+          if (msg == 'authRequired') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.signInRequired)),
+            );
+          } else if (msg == 'driveScopeRequired') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.driveScopeRequired)),
+            );
+          } else if (msg == 'noData') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.noRefuelsRegistered)),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.backupError(msg ?? ''))),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.backupError(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _backingUp = false);
+      }
+    }
+  }
+
+  Future<void> _doRestore() async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.restoreData),
+        content: Text(l10n.restoreConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.restoreButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _restoring = true);
+
+    try {
+      final success = await ref.read(backupProvider.notifier).restore(clearExisting: true);
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.restoreSuccess)),
+          );
+        } else {
+          final state = ref.read(backupProvider);
+          final msg = state.message;
+          if (msg == 'authRequired') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.signInRequired)),
+            );
+          } else if (msg == 'driveScopeRequired') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.driveScopeRequired)),
+            );
+          } else if (msg?.contains('No backup found') == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.noBackupFound)),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.restoreError(msg ?? ''))),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.restoreError(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _restoring = false);
       }
     }
   }

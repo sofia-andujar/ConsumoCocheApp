@@ -139,24 +139,6 @@
 
   "catalan": "Català",
 
-  "importData": "Importar dades",
-  "@importData": {"description": "Import data card title"},
-
-  "importDataDescription": "Importa els repostatges històrics des de les dades incloses a l'aplicació. Aquesta acció només es pot fer una vegada.",
-  "@importDataDescription": {"description": "Import data card description"},
-
-  "importDataButton": "Importar",
-  "@importDataButton": {"description": "Import data button label"},
-
-  "importDataDone": "Dades importades",
-  "@importDataDone": {"description": "Import data already done message"},
-
-  "importDataConfirm": "Vols importar els repostatges històrics? Les dades s'afegiran als ja existents.",
-  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
-
-  "importDataSuccess": "S'han importat {count} repostatges",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
-
   "unrealisticDistance": "Distància no realista (max 5000 km)",
   "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
 
@@ -179,5 +161,65 @@
   "@exportDataSuccess": {"description": "Export data success message"},
 
   "exportDataError": "Error en l'exportació",
-  "@exportDataError": {"description": "Export data error message"}
+  "@exportDataError": {"description": "Export data error message"},
+
+  "googleAccount": "Compte de Google",
+  "@googleAccount": {"description": "Google account section title"},
+
+  "signInWithGoogle": "Iniciar sessió amb Google",
+  "@signInWithGoogle": {"description": "Sign in with Google button"},
+
+  "signedInAs": "Sessió: {email}",
+  "@signedInAs": {"description": "Shows signed in email", "placeholders": {"email": {"type": "String"}}},
+
+  "signOut": "Tancar sessió",
+  "@signOut": {"description": "Sign out button"},
+
+  "backupData": "Fer còpia de seguretat",
+  "@backupData": {"description": "Backup data card title"},
+
+  "backupDataDescription": "Desa una còpia de l'historial a Google Drive.",
+  "@backupDataDescription": {"description": "Backup data card description"},
+
+  "backupButton": "Fer còpia",
+  "@backupButton": {"description": "Backup button label"},
+
+  "backupSuccess": "Dades desades correctament",
+  "@backupSuccess": {"description": "Backup success message"},
+
+  "backupError": "Error en la còpia: {error}",
+  "@backupError": {"description": "Backup error message", "placeholders": {"error": {"type": "String"}}},
+
+  "restoreData": "Restaurar dades",
+  "@restoreData": {"description": "Restore data card title"},
+
+  "restoreDataDescription": "Restaura l'historial des de Google Drive.",
+  "@restoreDataDescription": {"description": "Restore data card description"},
+
+  "restoreButton": "Restaurar",
+  "@restoreButton": {"description": "Restore button label"},
+
+  "restoreConfirm": "Restaurar dades? Les dades actuals seran reemplaçades.",
+  "@restoreConfirm": {"description": "Restore confirmation dialog message"},
+
+  "restoreSuccess": "Dades restaurades correctament",
+  "@restoreSuccess": {"description": "Restore success message"},
+
+  "restoreError": "Error en restaurar: {error}",
+  "@restoreError": {"description": "Restore error message", "placeholders": {"error": {"type": "String"}}},
+
+  "noBackupFound": "No s'ha trobat cap còpia. Fes una còpia primer.",
+  "@noBackupFound": {"description": "No backup found message"},
+
+  "signInRequired": "Inicia sessió amb Google per fer còpia de seguretat.",
+  "@signInRequired": {"description": "Sign in required message"},
+
+  "driveScopeRequired": "Concedeix permís a Google Drive per fer còpia de seguretat.",
+  "@driveScopeRequired": {"description": "Google Drive permission required message"},
+
+  "confirmReplaceData": "Les dades actuals seran reemplaçades per la còpia.",
+  "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
+
+  "lastBackup": "Última còpia: {date}",
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
 }

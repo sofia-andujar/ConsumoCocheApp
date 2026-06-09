@@ -139,24 +139,6 @@
 
   "catalan": "Català",
 
-  "importData": "Import data",
-  "@importData": {"description": "Import data card title"},
-
-  "importDataDescription": "Import historical refueling data from the built-in dataset. This action can only be performed once.",
-  "@importDataDescription": {"description": "Import data card description"},
-
-  "importDataButton": "Import",
-  "@importDataButton": {"description": "Import data button label"},
-
-  "importDataDone": "Data imported",
-  "@importDataDone": {"description": "Import data already done message"},
-
-  "importDataConfirm": "Do you want to import historical refueling data? The data will be added to any existing records.",
-  "@importDataConfirm": {"description": "Import data confirmation dialog message"},
-
-  "importDataSuccess": "Imported {count} refuels",
-  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
-
   "unrealisticDistance": "Unrealistic distance (max 5000 km)",
   "@unrealisticDistance": {"description": "Validation for unrealistic distance"},
 
@@ -179,5 +161,65 @@
   "@exportDataSuccess": {"description": "Export data success message"},
 
   "exportDataError": "Export error",
-  "@exportDataError": {"description": "Export data error message"}
+  "@exportDataError": {"description": "Export data error message"},
+
+  "googleAccount": "Google Account",
+  "@googleAccount": {"description": "Google account section title"},
+
+  "signInWithGoogle": "Sign in with Google",
+  "@signInWithGoogle": {"description": "Sign in with Google button"},
+
+  "signedInAs": "Signed in: {email}",
+  "@signedInAs": {"description": "Shows signed in email", "placeholders": {"email": {"type": "String"}}},
+
+  "signOut": "Sign out",
+  "@signOut": {"description": "Sign out button"},
+
+  "backupData": "Backup data",
+  "@backupData": {"description": "Backup data card title"},
+
+  "backupDataDescription": "Save a backup of your history to Google Drive.",
+  "@backupDataDescription": {"description": "Backup data card description"},
+
+  "backupButton": "Backup",
+  "@backupButton": {"description": "Backup button label"},
+
+  "backupSuccess": "Data backed up successfully",
+  "@backupSuccess": {"description": "Backup success message"},
+
+  "backupError": "Backup error: {error}",
+  "@backupError": {"description": "Backup error message", "placeholders": {"error": {"type": "String"}}},
+
+  "restoreData": "Restore data",
+  "@restoreData": {"description": "Restore data card title"},
+
+  "restoreDataDescription": "Restore your history from Google Drive.",
+  "@restoreDataDescription": {"description": "Restore data card description"},
+
+  "restoreButton": "Restore",
+  "@restoreButton": {"description": "Restore button label"},
+
+  "restoreConfirm": "Restore data? Your current data will be replaced.",
+  "@restoreConfirm": {"description": "Restore confirmation dialog message"},
+
+  "restoreSuccess": "Data restored successfully",
+  "@restoreSuccess": {"description": "Restore success message"},
+
+  "restoreError": "Restore error: {error}",
+  "@restoreError": {"description": "Restore error message", "placeholders": {"error": {"type": "String"}}},
+
+  "noBackupFound": "No backup found. Create a backup first.",
+  "@noBackupFound": {"description": "No backup found message"},
+
+  "signInRequired": "Sign in with Google to backup your data.",
+  "@signInRequired": {"description": "Sign in required message"},
+
+  "driveScopeRequired": "Grant Google Drive permission to backup your data.",
+  "@driveScopeRequired": {"description": "Google Drive permission required message"},
+
+  "confirmReplaceData": "Your current data will be replaced by the backup.",
+  "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
+
+  "lastBackup": "Last backup: {date}",
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
 }

@@ -514,42 +514,6 @@ abstract class AppLocalizations {
   /// **'Català'**
   String get catalan;
 
-  /// Import data card title
-  ///
-  /// In es, this message translates to:
-  /// **'Importar datos'**
-  String get importData;
-
-  /// Import data card description
-  ///
-  /// In es, this message translates to:
-  /// **'Importa los repostajes históricos desde los datos incluidos en la aplicación. Esta acción solo se puede realizar una vez.'**
-  String get importDataDescription;
-
-  /// Import data button label
-  ///
-  /// In es, this message translates to:
-  /// **'Importar'**
-  String get importDataButton;
-
-  /// Import data already done message
-  ///
-  /// In es, this message translates to:
-  /// **'Datos importados'**
-  String get importDataDone;
-
-  /// Import data confirmation dialog message
-  ///
-  /// In es, this message translates to:
-  /// **'¿Deseas importar los repostajes históricos? Los datos se añadirán a los ya existentes.'**
-  String get importDataConfirm;
-
-  /// Import data success message
-  ///
-  /// In es, this message translates to:
-  /// **'Se han importado {count} repostajes'**
-  String importDataSuccess(int count);
-
   /// Validation for unrealistic distance
   ///
   /// In es, this message translates to:
@@ -597,6 +561,126 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al exportar'**
   String get exportDataError;
+
+  /// Google account section title
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta de Google'**
+  String get googleAccount;
+
+  /// Sign in with Google button
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión con Google'**
+  String get signInWithGoogle;
+
+  /// Shows signed in email
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión: {email}'**
+  String signedInAs(String email);
+
+  /// Sign out button
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get signOut;
+
+  /// Backup data card title
+  ///
+  /// In es, this message translates to:
+  /// **'Respaldar datos'**
+  String get backupData;
+
+  /// Backup data card description
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda una copia del historial en Google Drive.'**
+  String get backupDataDescription;
+
+  /// Backup button label
+  ///
+  /// In es, this message translates to:
+  /// **'Respaldar'**
+  String get backupButton;
+
+  /// Backup success message
+  ///
+  /// In es, this message translates to:
+  /// **'Datos respaldados correctamente'**
+  String get backupSuccess;
+
+  /// Backup error message
+  ///
+  /// In es, this message translates to:
+  /// **'Error al respaldar: {error}'**
+  String backupError(String error);
+
+  /// Restore data card title
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar datos'**
+  String get restoreData;
+
+  /// Restore data card description
+  ///
+  /// In es, this message translates to:
+  /// **'Restaura el historial desde Google Drive.'**
+  String get restoreDataDescription;
+
+  /// Restore button label
+  ///
+  /// In es, this message translates to:
+  /// **'Restaurar'**
+  String get restoreButton;
+
+  /// Restore confirmation dialog message
+  ///
+  /// In es, this message translates to:
+  /// **'¿Restaurar datos? Los datos actuales serán reemplazados.'**
+  String get restoreConfirm;
+
+  /// Restore success message
+  ///
+  /// In es, this message translates to:
+  /// **'Datos restaurados correctamente'**
+  String get restoreSuccess;
+
+  /// Restore error message
+  ///
+  /// In es, this message translates to:
+  /// **'Error al restaurar: {error}'**
+  String restoreError(String error);
+
+  /// No backup found message
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontró ningún respaldo. Haz un respaldo primero.'**
+  String get noBackupFound;
+
+  /// Sign in required message
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión con Google para respaldar tus datos.'**
+  String get signInRequired;
+
+  /// Google Drive permission required message
+  ///
+  /// In es, this message translates to:
+  /// **'Concede permiso a Google Drive para respaldar tus datos.'**
+  String get driveScopeRequired;
+
+  /// Confirm replace data dialog body
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos actuales serán reemplazados por los del respaldo.'**
+  String get confirmReplaceData;
+
+  /// Last backup date label
+  ///
+  /// In es, this message translates to:
+  /// **'Último respaldo: {date}'**
+  String lastBackup(String date);
 }
 
 class _AppLocalizationsDelegate

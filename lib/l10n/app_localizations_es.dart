@@ -226,28 +226,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get catalan => 'Català';
 
   @override
-  String get importData => 'Importar datos';
-
-  @override
-  String get importDataDescription =>
-      'Importa los repostajes históricos desde los datos incluidos en la aplicación. Esta acción solo se puede realizar una vez.';
-
-  @override
-  String get importDataButton => 'Importar';
-
-  @override
-  String get importDataDone => 'Datos importados';
-
-  @override
-  String get importDataConfirm =>
-      '¿Deseas importar los repostajes históricos? Los datos se añadirán a los ya existentes.';
-
-  @override
-  String importDataSuccess(int count) {
-    return 'Se han importado $count repostajes';
-  }
-
-  @override
   String get unrealisticDistance => 'Distancia no realista (max 5000 km)';
 
   @override
@@ -271,4 +249,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get exportDataError => 'Error al exportar';
+
+  @override
+  String get googleAccount => 'Cuenta de Google';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
+
+  @override
+  String signedInAs(String email) {
+    return 'Sesión: $email';
+  }
+
+  @override
+  String get signOut => 'Cerrar sesión';
+
+  @override
+  String get backupData => 'Respaldar datos';
+
+  @override
+  String get backupDataDescription =>
+      'Guarda una copia del historial en Google Drive.';
+
+  @override
+  String get backupButton => 'Respaldar';
+
+  @override
+  String get backupSuccess => 'Datos respaldados correctamente';
+
+  @override
+  String backupError(String error) {
+    return 'Error al respaldar: $error';
+  }
+
+  @override
+  String get restoreData => 'Restaurar datos';
+
+  @override
+  String get restoreDataDescription =>
+      'Restaura el historial desde Google Drive.';
+
+  @override
+  String get restoreButton => 'Restaurar';
+
+  @override
+  String get restoreConfirm =>
+      '¿Restaurar datos? Los datos actuales serán reemplazados.';
+
+  @override
+  String get restoreSuccess => 'Datos restaurados correctamente';
+
+  @override
+  String restoreError(String error) {
+    return 'Error al restaurar: $error';
+  }
+
+  @override
+  String get noBackupFound =>
+      'No se encontró ningún respaldo. Haz un respaldo primero.';
+
+  @override
+  String get signInRequired =>
+      'Inicia sesión con Google para respaldar tus datos.';
+
+  @override
+  String get driveScopeRequired =>
+      'Concede permiso a Google Drive para respaldar tus datos.';
+
+  @override
+  String get confirmReplaceData =>
+      'Los datos actuales serán reemplazados por los del respaldo.';
+
+  @override
+  String lastBackup(String date) {
+    return 'Último respaldo: $date';
+  }
 }
