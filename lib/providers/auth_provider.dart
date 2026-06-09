@@ -1,5 +1,7 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../data/google_config.dart';
 
 const _driveScope = 'https://www.googleapis.com/auth/drive.file';
 
@@ -13,6 +15,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
   AuthNotifier()
       : _googleSignIn = GoogleSignIn(
           scopes: ['email', 'profile'],
+          serverClientId: GoogleSignInConfig.webClientId,
         ),
         super(const AsyncValue.data(null)) {
     _trySilentSignIn();
@@ -32,6 +35,25 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
     try {
       final account = await _googleSignIn.signIn();
       state = AsyncValue.data(account);
+    } on PlatformException catch (e) {
+      if (e.code == 'sign_in_failed' && e.message?.contains('10') == true) {
+        state = AsyncValue.error(
+          const _GoogleSignInException(
+            'Google Sign-In requires an OAuth client ID.\n\n'
+            '1. Go to https://console.cloud.google.com/apis/credentials\n'
+            '2. Create an OAuth 2.0 Client ID for "Android" with:\n'
+            '     Package: com.consumo_coche_chof\n'
+            '     SHA-1: (run keytool -list -v -keystore ~/.android/debug.keystore)\n'
+            '3. Create an OAuth 2.0 Client ID for "Web application"\n'
+            '4. Paste the web client ID in lib/data/google_config.dart\n'
+            '5. Add the SHA-1 to your Android OAuth client in the Cloud Console\n\n'
+            'See the google_config.dart file for detailed instructions.',
+          ),
+          StackTrace.current,
+        );
+      } else {
+        state = AsyncValue.error(e, StackTrace.current);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -63,4 +85,12 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
       return null;
     }
   }
+}
+
+class _GoogleSignInException implements Exception {
+  final String message;
+  const _GoogleSignInException(this.message);
+
+  @override
+  String toString() => message;
 }

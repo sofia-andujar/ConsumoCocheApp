@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="temp_app"
+        android:label="Calculadora Consumo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,6 +31,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Google Sign-In OAuth client ID.
+             Required for Google Sign-In to work on Android.
+             Generate one at https://console.cloud.google.com/apis/credentials
+             as "OAuth 2.0 Client ID" → "Web application".
+             Then uncomment and paste the ID below. -->
+        <!--
+        <meta-data
+            android:name="com.google.android.gms.signin.CLIENT_ID"
+            android:value="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com" />
+        -->
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -141,10 +141,10 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                   );
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 0),
               Wrap(
-                spacing: 12,
-                runSpacing: 8,
+                spacing: 8,
+                runSpacing: 4,
                 children: [
                   _LegendToggle(
                     color: consumptionColor,
@@ -496,30 +496,30 @@ class _LegendToggle extends StatelessWidget {
     final textColor = active ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withAlpha(150);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(6),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: borderColor, width: 2),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: borderColor, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 16,
-              height: 16,
+              width: 12,
+              height: 12,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: active ? FontWeight.w600 : FontWeight.normal,
                 color: textColor,
                 decoration: active ? TextDecoration.none : TextDecoration.lineThrough,
