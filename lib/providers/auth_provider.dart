@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../data/google_config.dart';
+import '../utils/app_logger.dart';
 
 const _driveScope = 'https://www.googleapis.com/auth/drive.file';
 
@@ -25,7 +27,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
     try {
       final account = await _googleSignIn.signInSilently();
       state = AsyncValue.data(account);
-    } catch (_) {
+    } catch (e, st) {
+      logError(e, st, tag: 'auth_provider');
       state = const AsyncValue.data(null);
     }
   }
@@ -52,16 +55,21 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
           StackTrace.current,
         );
       } else {
+        logError(e, StackTrace.current, tag: 'auth_provider');
         state = AsyncValue.error(e, StackTrace.current);
       }
     } catch (e, st) {
+      logError(e, st, tag: 'auth_provider');
       state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    state = const AsyncValue.data(null);
+    unawaited(_googleSignIn.signOut().then((_) {
+      state = const AsyncValue.data(null);
+    }).catchError((e, st) {
+      logError(e, st, tag: 'auth_provider');
+    },),);
   }
 
   Future<bool> ensureDriveScope() async {
@@ -71,7 +79,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
     try {
       final granted = await _googleSignIn.requestScopes([_driveScope]);
       return granted;
-    } catch (_) {
+    } catch (e, st) {
+      logError(e, st, tag: 'auth_provider');
       return false;
     }
   }
@@ -81,7 +90,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<GoogleSignInAccount?>> {
     if (account == null) return null;
     try {
       return await account.authHeaders;
-    } catch (_) {
+    } catch (e, st) {
+      logError(e, st, tag: 'auth_provider');
       return null;
     }
   }

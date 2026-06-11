@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/refuel.dart';
+import '../utils/app_logger.dart';
 
 class RefuelDatabase {
   static const String _databaseName = 'repostajes.db';
@@ -87,7 +88,20 @@ class RefuelDatabase {
       _tableRefuels,
       orderBy: 'date DESC',
     );
-    return rows.map((row) => Refuel.fromMap(row)).toList();
+    final result = <Refuel>[];
+    for (final row in rows) {
+      try {
+        result.add(Refuel.fromMap(row));
+      } catch (e, st) {
+        logError(
+          e,
+          st,
+          tag: 'db',
+          context: {'row_id': row['id'], 'row_date': row['date']},
+        );
+      }
+    }
+    return result;
   }
 
   Future<int> deleteRefuel(int id) async {
@@ -127,32 +141,32 @@ class RefuelDatabase {
     }
 
     final rawLines = content.split(RegExp(r'\r?\n|\r'));
-    debugPrint('[CSV IMPORT] Total raw lines: ${rawLines.length}');
+    logInfo('[CSV IMPORT] Total raw lines: ${rawLines.length}', tag: 'csv_import');
 
     final lines = rawLines
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty)
         .toList();
 
-    debugPrint('[CSV IMPORT] Non-empty lines: ${lines.length}');
+    logInfo('[CSV IMPORT] Non-empty lines: ${lines.length}', tag: 'csv_import');
     if (lines.isNotEmpty) {
-      debugPrint('[CSV IMPORT] First raw line: "${rawLines.isNotEmpty ? rawLines[0] : '(empty)'}"');
+      logInfo('[CSV IMPORT] First raw line: "${rawLines.isNotEmpty ? rawLines[0] : '(empty)'}"', tag: 'csv_import');
       for (var i = 0; i < (lines.length < 5 ? lines.length : 3); i++) {
-        debugPrint('[CSV IMPORT]   Line $i: "${lines[i]}" (codeUnits: ${lines[i].codeUnits})');
+        logInfo('[CSV IMPORT]   Line $i: "${lines[i]}"', tag: 'csv_import');
       }
     }
 
     if (lines.isEmpty) return 0;
 
     final delimiter = _detectDelimiter(lines);
-    debugPrint('[CSV IMPORT] Detected delimiter: "$delimiter"');
+    logInfo('[CSV IMPORT] Detected delimiter: "$delimiter"', tag: 'csv_import');
 
     var startIndex = 0;
     final firstCols = _parseCsvLine(lines[0], delimiter);
-    debugPrint('[CSV IMPORT] First line parsed: $firstCols');
+    logInfo('[CSV IMPORT] First line parsed: $firstCols', tag: 'csv_import');
     if (firstCols.isNotEmpty && !_isNumeric(firstCols[0])) {
       startIndex = 1;
-      debugPrint('[CSV IMPORT] First line is header, skipping to index 1');
+      logInfo('[CSV IMPORT] First line is header, skipping to index 1', tag: 'csv_import');
     }
 
     var count = 0;
@@ -195,15 +209,24 @@ class RefuelDatabase {
       count++;
     }
 
-    debugPrint('[CSV IMPORT] Rows imported: $count');
-    debugPrint('[CSV IMPORT] Skipped (columns<4): $skippedCols, (date): $skippedDate, (km): $skippedKm, (liters): $skippedLiters');
+    logInfo('[CSV IMPORT] Rows imported: $count', tag: 'csv_import');
+    logInfo('[CSV IMPORT] Skipped (columns<4): $skippedCols, (date): $skippedDate, (km): $skippedKm, (liters): $skippedLiters', tag: 'csv_import');
 
     await batch.commit(noResult: true);
 
     if (count == 0 && lines.length > startIndex) {
       final sample = lines[startIndex];
       final cols = _parseCsvLine(sample, delimiter);
-      debugPrint('[CSV IMPORT] ERROR: 0 rows imported. Sample line: "$sample" -> parsed: $cols');
+      logError(
+        FormatException(
+          'No se importaron filas. '
+          'Líneas: ${lines.length}, '
+          'delim: "$delimiter", '
+          '1ª línea: "$sample" -> $cols',
+        ),
+        StackTrace.current,
+        tag: 'csv_import',
+      );
       throw FormatException(
         'No se importaron filas. '
         'Líneas: ${lines.length}, '
@@ -236,6 +259,8 @@ class RefuelDatabase {
     final year = int.parse(match.group(3)!);
     final month = int.parse(match.group(2)!);
     final day = int.parse(match.group(1)!);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    if (year < 1990 || year > DateTime.now().year + 1) return null;
     return DateTime(year, month, day);
   }
 

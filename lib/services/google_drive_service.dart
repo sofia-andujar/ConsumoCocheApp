@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
+import '../utils/app_logger.dart';
 
 class GoogleDriveService {
   static const _backupFileName = 'consumo_mazda_backup.csv';
@@ -14,51 +14,66 @@ class GoogleDriveService {
 
   static Future<String?> _findBackupFileId(Map<String, String> authHeaders) async {
     final api = _api(authHeaders);
-    final response = await api.files.list(
-      q: "name='$_backupFileName' and trashed=false",
-      spaces: 'drive',
-      $fields: 'files(id, name)',
-    );
-    if (response.files != null && response.files!.isNotEmpty) {
-      return response.files!.first.id;
+    try {
+      final response = await api.files.list(
+        q: "name='$_backupFileName' and trashed=false",
+        spaces: 'drive',
+      );
+      if (response.files != null && response.files!.isNotEmpty) {
+        return response.files!.first.id;
+      }
+      return null;
+    } catch (e, st) {
+      logError(e, st, tag: 'google_drive');
+      rethrow;
     }
-    return null;
   }
 
   static Future<void> uploadBackup(Map<String, String> authHeaders, File csvFile) async {
-    final api = _api(authHeaders);
-    final existingId = await _findBackupFileId(authHeaders);
+    final client = http.Client();
+    try {
+      final api = drive.DriveApi(_AuthClient(authHeaders, client));
+      final existingId = await _findBackupFileId(authHeaders);
 
-    final media = drive.Media(csvFile.openRead(), await csvFile.length(), contentType: _mimeTypeCsv);
+      final media = drive.Media(csvFile.openRead(), await csvFile.length(), contentType: _mimeTypeCsv);
 
-    if (existingId != null) {
-      await api.files.update(
-        drive.File()..mimeType = _mimeTypeCsv,
-        existingId,
-        uploadMedia: media,
-      );
-    } else {
-      await api.files.create(
-        drive.File()
-          ..name = _backupFileName
-          ..mimeType = _mimeTypeCsv,
-        uploadMedia: media,
-      );
+      if (existingId != null) {
+        await api.files.update(
+          drive.File()..mimeType = _mimeTypeCsv,
+          existingId,
+          uploadMedia: media,
+        );
+      } else {
+        await api.files.create(
+          drive.File()
+            ..name = _backupFileName
+            ..mimeType = _mimeTypeCsv,
+          uploadMedia: media,
+        );
+      }
+    } finally {
+      client.close();
     }
   }
 
   static Future<String> downloadBackupContent(Map<String, String> authHeaders) async {
-    final fileId = await _findBackupFileId(authHeaders);
-    if (fileId == null) {
-      throw StateError('No backup found in Google Drive');
-    }
+    final client = http.Client();
+    try {
+      final fileId = await _findBackupFileId(authHeaders);
+      if (fileId == null) {
+        throw StateError('No backup found in Google Drive');
+      }
 
-    final url = Uri.parse('https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
-    final response = await http.Client().send(http.Request('GET', url)..headers.addAll(authHeaders));
-    if (response.statusCode == 200) {
-      return await response.stream.bytesToString();
+      final url = Uri.parse('https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
+      final request = http.Request('GET', url)..headers.addAll(authHeaders);
+      final streamedResponse = await client.send(request);
+      if (streamedResponse.statusCode == 200) {
+        return await streamedResponse.stream.bytesToString();
+      }
+      throw HttpException('Failed to download backup (${streamedResponse.statusCode})');
+    } finally {
+      client.close();
     }
-    throw HttpException('Failed to download backup (${response.statusCode})');
   }
 }
 

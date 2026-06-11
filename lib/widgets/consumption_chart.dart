@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
+import '../utils/formatters.dart';
 import 'chart_computations.dart';
 import 'chart_viewport.dart';
 
@@ -341,8 +342,10 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
               if (value - minY < yInterval * 0.01 || maxY - value < yInterval * 0.01) {
                 return const SizedBox.shrink();
               }
+              final decimals = value.truncateToDouble() == value ? 0 : 1;
+              final label = decimalFormatWithDecimals(locale, decimals).format(value);
               return Text(
-                value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1),
+                label,
                 style: TextStyle(fontSize: 10, color: isDark ? Colors.white.withAlpha(180) : Colors.black.withAlpha(180)),
               );
             },
@@ -434,7 +437,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                 style: TextStyle(color: consumptionColor, fontSize: 12, fontWeight: FontWeight.bold),
               ),);
               textSpans.add(TextSpan(
-                text: '${rawConsumption[index].toStringAsFixed(2)} L/100km\n',
+                text: '${decimalFormat(locale).format(rawConsumption[index])} L/100km\n',
                 style: TextStyle(color: consumptionColor, fontSize: 12),
               ),);
             }
@@ -444,7 +447,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                 style: TextStyle(color: meanColor, fontSize: 12, fontWeight: FontWeight.bold),
               ),);
               textSpans.add(TextSpan(
-                text: '${rawMean[index].toStringAsFixed(2)} L/100km\n',
+                text: '${decimalFormat(locale).format(rawMean[index])} L/100km\n',
                 style: TextStyle(color: meanColor, fontSize: 12),
               ),);
             }
@@ -454,7 +457,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                 style: TextStyle(color: ao5Color, fontSize: 12, fontWeight: FontWeight.bold),
               ),);
               textSpans.add(TextSpan(
-                text: '${rawAO5[index].toStringAsFixed(2)} L/100km',
+                text: '${decimalFormat(locale).format(rawAO5[index])} L/100km',
                 style: TextStyle(color: ao5Color, fontSize: 12),
               ),);
             }

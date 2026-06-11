@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/refuel_provider.dart';
 import '../models/refuel.dart';
+import '../utils/formatters.dart';
 import '../widgets/refuel_tile.dart';
 import 'add_refuel_screen.dart';
 
@@ -128,7 +129,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         return AlertDialog(
           title: Text(l10n.deleteRefuel),
           content: Text(
-            l10n.confirmDeleteRefuel(date, item.consumptionLPer100Km.toStringAsFixed(2)),
+            l10n.confirmDeleteRefuel(date, decimalFormat(locale).format(item.consumptionLPer100Km)),
           ),
           actions: [
             TextButton(

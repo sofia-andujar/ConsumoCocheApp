@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
+import '../utils/formatters.dart';
 
 class AddRefuelForm extends ConsumerStatefulWidget {
   final Refuel? refuel;
@@ -26,15 +27,26 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
 
   bool get isEditing => widget.refuel != null;
 
+  bool _initialized = false;
+
   @override
   void initState() {
     super.initState();
     if (widget.refuel != null) {
+      _selectedDate = widget.refuel!.date;
+      _commentController.text = widget.refuel!.comment;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized && widget.refuel != null) {
+      _initialized = true;
+      final locale = Localizations.localeOf(context).toString();
       final r = widget.refuel!;
-      _selectedDate = r.date;
-      _kilometerController.text = r.kilometers.toString();
-      _litersController.text = r.liters.toString();
-      _commentController.text = r.comment;
+      _kilometerController.text = decimalFormat(locale).format(r.kilometers);
+      _litersController.text = decimalFormat(locale).format(r.liters);
     }
   }
 
@@ -76,9 +88,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     final refuel = Refuel(
       id: widget.refuel?.id,
       date: _selectedDate,
-      kilometers: double.parse(_kilometerController.text),
+      kilometers: parseDecimalInput(_kilometerController.text)!,
       comment: _commentController.text,
-      liters: double.parse(_litersController.text),
+      liters: parseDecimalInput(_litersController.text)!,
     );
 
     if (isEditing) {
@@ -146,7 +158,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
                       if (value == null || value.isEmpty) {
                         return l10n.required;
                       }
-                      final n = double.tryParse(value);
+                      final n = parseDecimalInput(value);
                       if (n == null) return l10n.invalid;
                       if (n <= 0) return l10n.mustBeGreaterThanZero;
                       if (n > 5000) return l10n.unrealisticDistance;
@@ -168,7 +180,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
                       if (value == null || value.isEmpty) {
                         return l10n.required;
                       }
-                      final n = double.tryParse(value);
+                      final n = parseDecimalInput(value);
                       if (n == null) return l10n.invalid;
                       if (n <= 0) return l10n.mustBeGreaterThanZero;
                       if (n > 200) return l10n.unrealisticLiters;
@@ -226,7 +238,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               if (value == null || value.isEmpty) {
                 return l10n.enterDistance;
               }
-              final n = double.tryParse(value);
+              final n = parseDecimalInput(value);
               if (n == null) return l10n.invalidNumericValue;
               if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
               if (n > 5000) return l10n.unrealisticDistance;
@@ -245,7 +257,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               if (value == null || value.isEmpty) {
                 return l10n.enterLiters;
               }
-              final n = double.tryParse(value);
+              final n = parseDecimalInput(value);
               if (n == null) return l10n.invalidNumericValue;
               if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
               if (n > 200) return l10n.unrealisticLiters;

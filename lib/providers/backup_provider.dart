@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/export_service.dart';
 import '../services/google_drive_service.dart';
+import '../utils/app_logger.dart';
 import 'auth_provider.dart';
 import 'refuel_provider.dart';
 
@@ -63,7 +63,8 @@ class BackupNotifier extends StateNotifier<BackupState> {
         lastBackup: DateTime.now(),
       );
       return true;
-    } catch (e) {
+    } catch (e, st) {
+      logError(e, st, tag: 'backup_provider');
       state = BackupState(status: BackupStatus.error, message: e.toString());
       return false;
     }
@@ -93,7 +94,8 @@ class BackupNotifier extends StateNotifier<BackupState> {
 
       state = BackupState(status: BackupStatus.idle, lastBackup: DateTime.now());
       return true;
-    } catch (e) {
+    } catch (e, st) {
+      logError(e, st, tag: 'backup_provider');
       state = BackupState(status: BackupStatus.error, message: e.toString());
       return false;
     }

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 class AppLogger {
-  static const String _tag = 'AppLogger';
   static const int _maxEntries = 200;
 
   static final AppLogger instance = AppLogger._internal();
@@ -66,7 +66,7 @@ class AppLogger {
     _printEntry(entry);
   }
 
-  List<_LogEntry> get entries => List.unmodifiable(_ringBuffer);
+  List<LogEntry> get entries => _ringBuffer.map((e) => e.toPublic()).toList();
 
   Future<void> _initFile() async {
     if (_logFile != null) return;
@@ -143,6 +143,9 @@ class AppLogger {
     }
   }
 
+  // ignore: library_private_types_in_public_api
+  LogEntry fromInternal(_LogEntry e) => e.toPublic();
+
   void logProviderTransition(
     String providerName,
     Object? previous,
@@ -169,6 +172,27 @@ class AppLogger {
 
 enum _LogLevel { info, warning, error }
 
+class LogEntry {
+  final DateTime timestamp;
+  final String level;
+  final String tag;
+  final String message;
+  final StackTrace? stackTrace;
+  final Map<String, Object?>? context;
+
+  const LogEntry({
+    required this.timestamp,
+    required this.level,
+    required this.tag,
+    required this.message,
+    this.stackTrace,
+    this.context,
+  });
+
+  @override
+  String toString() => '[$timestamp][${level.toUpperCase()}][$tag] $message';
+}
+
 class _LogEntry {
   final DateTime timestamp;
   final _LogLevel level;
@@ -185,6 +209,15 @@ class _LogEntry {
     this.stackTrace,
     this.context,
   });
+
+  LogEntry toPublic() => LogEntry(
+        timestamp: timestamp,
+        level: level.name,
+        tag: tag,
+        message: message,
+        stackTrace: stackTrace,
+        context: context,
+      );
 }
 
 void logError(

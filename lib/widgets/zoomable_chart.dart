@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
+import '../utils/formatters.dart';
 import 'chart_viewport.dart';
 import 'consumption_chart.dart';
 
@@ -103,7 +104,7 @@ class _ZoomableChartState extends State<ZoomableChart> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '${_xZoom.toStringAsFixed(1)}x',
+                '${decimalFormatWithDecimals(Localizations.localeOf(context).toString(), 1).format(_xZoom)}x',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
