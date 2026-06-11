@@ -9,9 +9,6 @@ class SnackBarHelper {
   static const Duration _errorDuration = Duration(seconds: 4);
   static const Duration _undoDuration = Duration(seconds: 2);
 
-  static const double _borderRadius = 12;
-  static const EdgeInsets _margin = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
-
   static void showSuccess(BuildContext context, String message) {
     _show(
       context,
@@ -24,13 +21,14 @@ class SnackBarHelper {
   }
 
   static void showError(BuildContext context, String message) {
+    final colorScheme = Theme.of(context).colorScheme;
     _show(
       context,
       message: message,
       icon: Icons.error_rounded,
       duration: _errorDuration,
-      backgroundColor: const Color(0xFFC62828),
-      foregroundColor: Colors.white,
+      backgroundColor: colorScheme.error,
+      foregroundColor: colorScheme.onError,
     );
   }
 
@@ -62,24 +60,32 @@ class SnackBarHelper {
     required String undoLabel,
     required VoidCallback onUndo,
   }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.undo_rounded, color: Colors.white, size: 20),
+            Icon(Icons.undo_rounded, color: cs.onPrimary, size: 20),
             const SizedBox(width: 12),
-            Expanded(child: Text(message)),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: cs.onPrimary),
+              ),
+            ),
           ],
         ),
         duration: _undoDuration,
-        behavior: SnackBarBehavior.floating,
-        margin: _margin,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_borderRadius)),
+        behavior: theme.snackBarTheme.behavior ?? SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: theme.snackBarTheme.shape,
+        backgroundColor: cs.primary,
         action: SnackBarAction(
           label: undoLabel,
-          textColor: Colors.white70,
+          textColor: cs.onPrimary.withAlpha(200),
           onPressed: onUndo,
         ),
       ),
@@ -94,6 +100,7 @@ class SnackBarHelper {
     required Color backgroundColor,
     required Color foregroundColor,
   }) {
+    final theme = Theme.of(context);
     final messenger = ScaffoldMessenger.of(context);
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
@@ -111,9 +118,9 @@ class SnackBarHelper {
           ],
         ),
         duration: duration,
-        behavior: SnackBarBehavior.floating,
-        margin: _margin,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_borderRadius)),
+        behavior: theme.snackBarTheme.behavior ?? SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: theme.snackBarTheme.shape,
         backgroundColor: backgroundColor,
       ),
     );

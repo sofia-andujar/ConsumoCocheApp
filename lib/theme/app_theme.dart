@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTheme {
+  // Spacing
+  static const double spaceXs = 4;
+  static const double spaceSm = 8;
+  static const double spaceMd = 12;
+  static const double spaceLg = 16;
+
   // Pastel colors
   static const Color pastelPurple = Color.fromARGB(255, 200, 150, 220);
-  static const Color pastelPurpleDark = Color.fromARGB(255, 170, 120, 190);
   static const Color pastelPink = Color.fromARGB(255, 242, 184, 206);
   static const Color pastelBlue = Color.fromARGB(255, 148, 186, 238);
   static const Color pastelGreen = Color.fromARGB(255, 142, 210, 185);
@@ -14,10 +19,10 @@ class AppTheme {
   static const Color pastelGray = Color.fromARGB(255, 230, 230, 235);
 
   // Dark mode fixed colors
-  static const Color darkBackground = Color(0xFF121220);
-  static const Color darkSurface = Color(0xFF1E1E30);
-  static const Color darkCard = Color(0xFF28283E);
-  static const Color darkOnSurface = Color(0xFFE8E0F0);
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkCard = Color(0xFF2A2A2A);
+  static const Color darkOnSurface = Color(0xFFE0E0E0);
 
   static const Color defaultAccentColor = pastelPurple;
   static const List<Color> accentColors = [
@@ -37,11 +42,6 @@ class AppTheme {
   static Color _darken(Color color, [double amount = .14]) {
     final hsl = HSLColor.fromColor(color);
     return hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0)).toColor();
-  }
-
-  static Color _lighten(Color color, [double amount = .12]) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0)).toColor();
   }
 
   static Color _themeBackground(Color color) {
@@ -68,9 +68,7 @@ class AppTheme {
     ).copyWith(
       primaryContainer: accentContainer,
       surface: pastelCream,
-      outline: const Color.fromARGB(255, 150, 120, 170),
       onPrimary: accentOnColor,
-      onSurface: const Color.fromARGB(255, 50, 50, 70),
     );
 
     return ThemeData(
@@ -157,12 +155,7 @@ class AppTheme {
   }
 
   static ThemeData darkTheme(Color accentColor) {
-    final accentLight = _lighten(accentColor, 0.08);
-    final accentBorder = accentColor.withAlpha(100);
     final accentOnColor = _onColor(accentColor);
-    final accentContainerOnColor = _onColor(accentLight);
-    const surfaceColor = darkSurface;
-    const cardColor = darkCard;
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: accentColor,
@@ -171,10 +164,8 @@ class AppTheme {
       tertiary: pastelBlue,
     ).copyWith(
       primaryContainer: darkCard,
-      surface: surfaceColor,
-      outline: accentColor.withAlpha(100),
+      surface: darkSurface,
       onPrimary: accentOnColor,
-      onSurface: darkOnSurface,
     );
 
     return ThemeData(
@@ -194,7 +185,7 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: cardColor,
+        color: darkCard,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         shadowColor: Colors.black.withAlpha(77),
@@ -229,7 +220,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: accentBorder),
+          borderSide: BorderSide(color: accentColor.withAlpha(100)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -246,10 +237,10 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentTextStyle: TextStyle(color: accentContainerOnColor),
+        contentTextStyle: TextStyle(color: accentOnColor),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: cardColor,
+        backgroundColor: darkCard,
         selectedColor: accentColor,
         side: BorderSide(color: accentColor),
         labelStyle: const TextStyle(color: darkOnSurface),

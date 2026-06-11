@@ -1,9 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
-import '../utils/formatters.dart';
 import 'chart_viewport.dart';
 import 'consumption_chart.dart';
 
@@ -46,18 +44,26 @@ class _ZoomableChartState extends State<ZoomableChart> {
     });
   }
 
+  void _zoomOutMax() {
+    setState(() {
+      _xZoom = 1.0;
+      _xOffset = 0.0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
 
     Widget chart = LayoutBuilder(
       builder: (context, constraints) {
         final safeHeight = math.max(widget.minChartHeight, constraints.maxHeight - 100.0);
         final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
         final viewportWidth = maxDataX > 0 ? maxDataX / _xZoom : 0.0;
-        final startX = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth)).toDouble();
-        final endX = (startX + viewportWidth).clamp(0.0, maxDataX).toDouble();
+        final rawStart = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
+        final rawEnd = (rawStart + viewportWidth).clamp(0.0, maxDataX);
+        final startX = rawStart.floorToDouble();
+        final endX = rawEnd.ceilToDouble();
         return ConsumptionChart(
           refuels: widget.refuels,
           showTitle: false,
@@ -97,32 +103,23 @@ class _ZoomableChartState extends State<ZoomableChart> {
           Positioned(
             top: 8,
             right: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withAlpha(200),
+            child: Material(
+              color: theme.colorScheme.surfaceContainerHighest.withAlpha(200),
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${decimalFormatWithDecimals(Localizations.localeOf(context).toString(), 1).format(_xZoom)}x',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface,
+                onTap: _xZoom > 1.0 ? _zoomOutMax : _resetViewport,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    _xZoom > 1.0 ? Icons.fit_screen : Icons.zoom_in,
+                    size: 18,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ),
             ),
           ),
-          if (_xZoom != _defaultViewport.zoom || _xOffset != _defaultViewport.offset)
-            Positioned(
-              top: 8,
-              left: 8,
-              child: FilledButton.tonalIcon(
-                onPressed: _resetViewport,
-                icon: const Icon(Icons.refresh, size: 16),
-                label: Text(l10n.reset, style: const TextStyle(fontSize: 12)),
-              ),
-            ),
         ],
       );
     }

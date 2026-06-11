@@ -148,6 +148,12 @@ abstract class AppLocalizations {
   /// **'Restablecer zoom'**
   String get resetZoom;
 
+  /// Zoom out button label
+  ///
+  /// In es, this message translates to:
+  /// **'Alejar'**
+  String get zoomOut;
+
   /// History screen title
   ///
   /// In es, this message translates to:

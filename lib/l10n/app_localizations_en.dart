@@ -35,6 +35,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetZoom => 'Reset zoom';
 
   @override
+  String get zoomOut => 'Zoom out';
+
+  @override
   String get history => 'History';
 
   @override

@@ -35,6 +35,9 @@ class AppLocalizationsCa extends AppLocalizations {
   String get resetZoom => 'Restablir zoom';
 
   @override
+  String get zoomOut => 'Allunyar';
+
+  @override
   String get history => 'Historial';
 
   @override

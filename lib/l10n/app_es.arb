@@ -25,6 +25,9 @@
   "resetZoom": "Restablecer zoom",
   "@resetZoom": {"description": "Reset zoom button in fullscreen chart"},
 
+  "zoomOut": "Alejar",
+  "@zoomOut": {"description": "Zoom out button label"},
+
   "history": "Historial",
   "@history": {"description": "History screen title"},
 
