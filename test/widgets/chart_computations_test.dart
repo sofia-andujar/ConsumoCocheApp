@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:calculadora_consumo_app/widgets/chart_computations.dart';
+import 'package:tankup/widgets/chart_computations.dart';
 
 void main() {
   group('ChartComputations', () {

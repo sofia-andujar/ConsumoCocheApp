@@ -381,8 +381,25 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  itemCount: filteredRefuels.length,
+                  itemCount: filteredRefuels.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == filteredRefuels.length) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 24),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.error,
+                              foregroundColor: Theme.of(context).colorScheme.onError,
+                            ),
+                            icon: const Icon(Icons.delete_forever),
+                            label: Text(l10n.deleteAllRecords),
+                            onPressed: () => _confirmDeleteAll(context),
+                          ),
+                        ),
+                      );
+                    }
                     final item = filteredRefuels[index];
                     return RefuelTile(
                       refuel: item,
@@ -402,33 +419,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: refuelState.maybeWhen(
-          data: (refuels) {
-            return ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-              ),
-              icon: const Icon(Icons.delete_forever),
-              label: Text(l10n.deleteAllRecords),
-              onPressed: refuels.isNotEmpty
-                  ? () => _confirmDeleteAll(context)
-                  : null,
-            );
-          },
-          orElse: () => ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-            icon: const Icon(Icons.delete_forever),
-            label: Text(l10n.deleteAllRecords),
-            onPressed: null,
-          ),
-        ),
       ),
     );
   }

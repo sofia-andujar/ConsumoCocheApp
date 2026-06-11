@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:calculadora_consumo_app/models/refuel.dart';
+import 'package:tankup/models/refuel.dart';
 
 void main() {
   group('Refuel', () {

@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/refuel.dart';
 
 class ExportService {
-  static Future<String> exportToCsv(List<Refuel> refuels, {String locale = 'es'}) async {
+  static String generateCsvContent(List<Refuel> refuels, {String locale = 'es'}) {
     final buffer = StringBuffer();
     buffer.writeln('date,kilometers,liters,consumption,comment');
 
@@ -23,10 +23,21 @@ class ExportService {
       buffer.writeln('$date,$km,$l,$consumption,$comment');
     }
 
+    return buffer.toString();
+  }
+
+  static Future<String> exportToCsv(List<Refuel> refuels, {String locale = 'es'}) async {
+    final content = generateCsvContent(refuels, locale: locale);
+
     final directory = await getApplicationDocumentsDirectory();
     final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     final file = File('${directory.path}/consumo_mazda_$timestamp.csv');
-    await file.writeAsString(buffer.toString());
+    await file.writeAsString(content);
     return file.path;
+  }
+
+  static Future<void> exportToCsvPath(List<Refuel> refuels, String path, {String locale = 'es'}) async {
+    final content = generateCsvContent(refuels, locale: locale);
+    await File(path).writeAsString(content);
   }
 }

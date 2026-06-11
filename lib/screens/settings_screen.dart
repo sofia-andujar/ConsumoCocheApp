@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -354,16 +355,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final filePath = result.files.single.path;
       if (filePath == null) return;
 
-      final file = File(filePath);
-      final content = await file.readAsString();
+      final bytes = await File(filePath).readAsBytes();
+      String content;
+      if (bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE) {
+        final codeUnits = <int>[];
+        for (var i = 2; i + 1 < bytes.length; i += 2) {
+          codeUnits.add(bytes[i] | (bytes[i + 1] << 8));
+        }
+        content = String.fromCharCodes(codeUnits);
+      } else if (bytes.length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF) {
+        final codeUnits = <int>[];
+        for (var i = 2; i + 1 < bytes.length; i += 2) {
+          codeUnits.add((bytes[i] << 8) | bytes[i + 1]);
+        }
+        content = String.fromCharCodes(codeUnits);
+      } else {
+        try {
+          content = utf8.decode(bytes);
+        } on FormatException {
+          content = latin1.decode(bytes);
+        }
+      }
 
       final count = await RefuelDatabase.instance.importFromCsv(content, clearExisting: false);
 
       ref.invalidate(refuelListProvider);
 
       if (mounted) {
+        final msg = count > 0
+            ? l10n.importDataSuccess(count)
+            : '${l10n.importDataError}: ${l10n.noRefuelsRegistered}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.importDataSuccess(count))),
+          SnackBar(content: Text(msg)),
         );
       }
     } catch (e) {
@@ -388,10 +411,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     try {
       final locale = Localizations.localeOf(context).toString();
-      final path = await ExportService.exportToCsv(refuels, locale: locale);
+      final now = DateTime.now();
+      final ts = '${now.year}${_pad(now.month)}${_pad(now.day)}_${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}';
+      final fileName = 'consumo_mazda_$ts.csv';
+
+      final csvContent = ExportService.generateCsvContent(refuels, locale: locale);
+
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: AppLocalizations.of(context)!.exportDataCsv,
+        fileName: fileName,
+        bytes: utf8.encode(csvContent),
+        allowedExtensions: ['csv'],
+        type: FileType.custom,
+      );
+
+      if (savePath == null) return;
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.exportDataSuccess}: $path')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.exportDataSuccess)),
         );
       }
     } catch (e) {
@@ -514,4 +552,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     }
   }
+
+  String _pad(int n) => n.toString().padLeft(2, '0');
 }

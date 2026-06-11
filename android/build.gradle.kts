@@ -5,6 +5,16 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate {
+        if (project.plugins.hasPlugin("com.android.application")) {
+            project.extensions.getByType(com.android.build.api.dsl.ApplicationExtension::class.java).compileSdk = 36
+        } else if (project.plugins.hasPlugin("com.android.library")) {
+            project.extensions.getByType(com.android.build.api.dsl.LibraryExtension::class.java).compileSdk = 36
+        }
+    }
+}
+
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")

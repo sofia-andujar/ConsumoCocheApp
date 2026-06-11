@@ -121,25 +121,69 @@ class RefuelDatabase {
       await db.delete(_tableRefuels);
     }
 
-    final lines = csvContent.split('\n');
-    if (lines.length < 2) return 0;
+    var content = csvContent;
+    if (content.isNotEmpty && content.codeUnitAt(0) == 0xFEFF) {
+      content = content.substring(1);
+    }
+
+    final rawLines = content.split(RegExp(r'\r?\n|\r'));
+    debugPrint('[CSV IMPORT] Total raw lines: ${rawLines.length}');
+
+    final lines = rawLines
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
+
+    debugPrint('[CSV IMPORT] Non-empty lines: ${lines.length}');
+    if (lines.isNotEmpty) {
+      debugPrint('[CSV IMPORT] First raw line: "${rawLines.isNotEmpty ? rawLines[0] : '(empty)'}"');
+      for (var i = 0; i < (lines.length < 5 ? lines.length : 3); i++) {
+        debugPrint('[CSV IMPORT]   Line $i: "${lines[i]}" (codeUnits: ${lines[i].codeUnits})');
+      }
+    }
+
+    if (lines.isEmpty) return 0;
+
+    final delimiter = _detectDelimiter(lines);
+    debugPrint('[CSV IMPORT] Detected delimiter: "$delimiter"');
+
+    var startIndex = 0;
+    final firstCols = _parseCsvLine(lines[0], delimiter);
+    debugPrint('[CSV IMPORT] First line parsed: $firstCols');
+    if (firstCols.isNotEmpty && !_isNumeric(firstCols[0])) {
+      startIndex = 1;
+      debugPrint('[CSV IMPORT] First line is header, skipping to index 1');
+    }
 
     var count = 0;
     final batch = db.batch();
+    var skippedCols = 0;
+    var skippedDate = 0;
+    var skippedKm = 0;
+    var skippedLiters = 0;
 
-    for (var i = 1; i < lines.length; i++) {
+    for (var i = startIndex; i < lines.length; i++) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
 
-      final columns = _parseCsvLine(line);
-      if (columns.length < 4) continue;
+      final columns = _parseCsvLine(line, delimiter);
+      if (columns.length < 4) {
+        skippedCols++;
+        continue;
+      }
 
-      final date = DateTime.tryParse(columns[0].trim());
-      final km = double.tryParse(columns[1].trim());
-      final liters = double.tryParse(columns[2].trim());
+      var dateStr = columns[0].trim();
+      final kmRaw = columns[1].trim();
+      final litersRaw = columns[2].trim();
       final comment = columns.length > 4 ? columns[4].trim() : '';
 
-      if (date == null || km == null || liters == null) continue;
+      final date = DateTime.tryParse(dateStr) ?? _tryParseAltDate(dateStr);
+      final km = _parseNumber(kmRaw);
+      final liters = _parseNumber(litersRaw);
+
+      if (date == null) { skippedDate++; continue; }
+      if (km == null) { skippedKm++; continue; }
+      if (liters == null) { skippedLiters++; continue; }
       if (km <= 0 || liters <= 0) continue;
 
       batch.insert(_tableRefuels, {
@@ -151,11 +195,67 @@ class RefuelDatabase {
       count++;
     }
 
+    debugPrint('[CSV IMPORT] Rows imported: $count');
+    debugPrint('[CSV IMPORT] Skipped (columns<4): $skippedCols, (date): $skippedDate, (km): $skippedKm, (liters): $skippedLiters');
+
     await batch.commit(noResult: true);
+
+    if (count == 0 && lines.length > startIndex) {
+      final sample = lines[startIndex];
+      final cols = _parseCsvLine(sample, delimiter);
+      debugPrint('[CSV IMPORT] ERROR: 0 rows imported. Sample line: "$sample" -> parsed: $cols');
+      throw FormatException(
+        'No se importaron filas. '
+        'Líneas: ${lines.length}, '
+        'delim: "$delimiter", '
+        '1ª línea: "$sample" -> $cols',
+      );
+    }
+
     return count;
   }
 
-  List<String> _parseCsvLine(String line) {
+  String _detectDelimiter(List<String> lines) {
+    for (final line in lines) {
+      var semicolons = 0;
+      var commas = 0;
+      for (var i = 0; i < line.length; i++) {
+        final c = line[i];
+        if (c == ';') semicolons++;
+        if (c == ',') commas++;
+      }
+      if (semicolons > commas && semicolons > 0) return ';';
+      if (commas >= semicolons && commas > 0) return ',';
+    }
+    return ',';
+  }
+
+  DateTime? _tryParseAltDate(String s) {
+    final match = RegExp(r'^(\d{1,2})[./](\d{1,2})[./](\d{4})$').firstMatch(s.trim());
+    if (match == null) return null;
+    final year = int.parse(match.group(3)!);
+    final month = int.parse(match.group(2)!);
+    final day = int.parse(match.group(1)!);
+    return DateTime(year, month, day);
+  }
+
+  double? _parseNumber(String raw) {
+    var s = raw.trim().replaceAll(' ', '');
+    final hasDot = s.contains('.');
+    final hasComma = s.contains(',');
+    if (hasComma && hasDot) {
+      s = s.replaceFirst(',', '');
+    } else if (hasComma) {
+      s = s.replaceAll(',', '.');
+    }
+    return double.tryParse(s);
+  }
+
+  bool _isNumeric(String s) {
+    return double.tryParse(s.replaceAll(',', '.')) != null;
+  }
+
+  List<String> _parseCsvLine(String line, String delimiter) {
     final result = <String>[];
     var current = StringBuffer();
     var inQuotes = false;
@@ -169,7 +269,7 @@ class RefuelDatabase {
         } else {
           inQuotes = !inQuotes;
         }
-      } else if (char == ',' && !inQuotes) {
+      } else if (char == delimiter && !inQuotes) {
         result.add(current.toString());
         current = StringBuffer();
       } else {
