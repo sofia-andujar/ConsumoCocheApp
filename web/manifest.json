@@ -1,6 +1,6 @@
 {
-    "name": "Calculadora Consumo Mazda 2",
-    "short_name": "Consumo Mazda 2",
+    "name": "TankUp",
+    "short_name": "TankUp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

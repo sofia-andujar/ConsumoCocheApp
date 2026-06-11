@@ -324,4 +324,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String lastBackup(String date) {
     return 'Último respaldo: $date';
   }
+
+  @override
+  String get importData => 'Importar datos';
+
+  @override
+  String get importDataDescription =>
+      'Importa el historial de repostajes desde un archivo CSV.';
+
+  @override
+  String get importDataCsv => 'Importar CSV';
+
+  @override
+  String importDataSuccess(int count) {
+    return 'Importados $count repostajes';
+  }
+
+  @override
+  String get importDataError => 'Error al importar';
 }

@@ -1,7 +1,11 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../data/export_service.dart';
+import '../data/refuel_database.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/backup_provider.dart';
@@ -152,6 +156,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildGoogleAccountCard(context, theme, l10n, authState),
           const SizedBox(height: 16),
           _buildExportCard(context, theme, l10n),
+          const SizedBox(height: 16),
+          _buildImportCard(context, theme, l10n),
           const SizedBox(height: 24),
           Text(
             l10n.settingsPersist,
@@ -301,6 +307,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildImportCard(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.download, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(l10n.importData, style: theme.textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(l10n.importDataDescription, style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _doImport,
+                icon: const Icon(Icons.file_open, size: 18),
+                label: Text(l10n.importDataCsv),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _doImport() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final filePath = result.files.single.path;
+      if (filePath == null) return;
+
+      final file = File(filePath);
+      final content = await file.readAsString();
+
+      final count = await RefuelDatabase.instance.importFromCsv(content, clearExisting: false);
+
+      ref.invalidate(refuelListProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.importDataSuccess(count))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.importDataError}: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _doExport() async {

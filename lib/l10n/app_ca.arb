@@ -221,5 +221,20 @@
   "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
 
   "lastBackup": "Última còpia: {date}",
-  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}},
+
+  "importData": "Importar dades",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Importa l'historial de repostatges des d'un fitxer CSV.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataCsv": "Importar CSV",
+  "@importDataCsv": {"description": "Import CSV button label"},
+
+  "importDataSuccess": "Importats {count} repostatges",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "importDataError": "Error en la importació",
+  "@importDataError": {"description": "Import data error message"}
 }

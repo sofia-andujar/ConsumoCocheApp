@@ -1,4 +1,4 @@
-package com.consumo_coche_chof
+package com.tankup
 
 import io.flutter.embedding.android.FlutterActivity
 

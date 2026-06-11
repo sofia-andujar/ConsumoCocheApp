@@ -320,4 +320,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String lastBackup(String date) {
     return 'Last backup: $date';
   }
+
+  @override
+  String get importData => 'Import data';
+
+  @override
+  String get importDataDescription => 'Import refuel history from a CSV file.';
+
+  @override
+  String get importDataCsv => 'Import CSV';
+
+  @override
+  String importDataSuccess(int count) {
+    return 'Imported $count refuels';
+  }
+
+  @override
+  String get importDataError => 'Import error';
 }

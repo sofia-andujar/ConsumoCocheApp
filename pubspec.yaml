@@ -1,4 +1,4 @@
-name: calculadora_consumo_app
+name: tankup
 description: Una app Flutter para registrar repostajes de coche con almacenamiento local.
 publish_to: 'none'
 environment:
@@ -19,6 +19,7 @@ dependencies:
   google_sign_in: ^6.2.1
   googleapis: ^13.2.0
   http: ^1.2.0
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:

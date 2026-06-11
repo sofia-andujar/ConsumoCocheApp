@@ -221,5 +221,20 @@
   "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
 
   "lastBackup": "Last backup: {date}",
-  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}},
+
+  "importData": "Import data",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Import refuel history from a CSV file.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataCsv": "Import CSV",
+  "@importDataCsv": {"description": "Import CSV button label"},
+
+  "importDataSuccess": "Imported {count} refuels",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "importDataError": "Import error",
+  "@importDataError": {"description": "Import data error message"}
 }

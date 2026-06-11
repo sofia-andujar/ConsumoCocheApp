@@ -681,6 +681,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Último respaldo: {date}'**
   String lastBackup(String date);
+
+  /// Import data card title
+  ///
+  /// In es, this message translates to:
+  /// **'Importar datos'**
+  String get importData;
+
+  /// Import data card description
+  ///
+  /// In es, this message translates to:
+  /// **'Importa el historial de repostajes desde un archivo CSV.'**
+  String get importDataDescription;
+
+  /// Import CSV button label
+  ///
+  /// In es, this message translates to:
+  /// **'Importar CSV'**
+  String get importDataCsv;
+
+  /// Import data success message
+  ///
+  /// In es, this message translates to:
+  /// **'Importados {count} repostajes'**
+  String importDataSuccess(int count);
+
+  /// Import data error message
+  ///
+  /// In es, this message translates to:
+  /// **'Error al importar'**
+  String get importDataError;
 }
 
 class _AppLocalizationsDelegate

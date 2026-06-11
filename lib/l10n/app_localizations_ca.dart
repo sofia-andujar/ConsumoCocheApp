@@ -325,4 +325,22 @@ class AppLocalizationsCa extends AppLocalizations {
   String lastBackup(String date) {
     return 'Última còpia: $date';
   }
+
+  @override
+  String get importData => 'Importar dades';
+
+  @override
+  String get importDataDescription =>
+      'Importa l\'historial de repostatges des d\'un fitxer CSV.';
+
+  @override
+  String get importDataCsv => 'Importar CSV';
+
+  @override
+  String importDataSuccess(int count) {
+    return 'Importats $count repostatges';
+  }
+
+  @override
+  String get importDataError => 'Error en la importació';
 }

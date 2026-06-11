@@ -290,5 +290,20 @@
   "@confirmReplaceData": {"description": "Confirm replace data dialog body"},
 
   "lastBackup": "Último respaldo: {date}",
-  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}}
+  "@lastBackup": {"description": "Last backup date label", "placeholders": {"date": {"type": "String"}}},
+
+  "importData": "Importar datos",
+  "@importData": {"description": "Import data card title"},
+
+  "importDataDescription": "Importa el historial de repostajes desde un archivo CSV.",
+  "@importDataDescription": {"description": "Import data card description"},
+
+  "importDataCsv": "Importar CSV",
+  "@importDataCsv": {"description": "Import CSV button label"},
+
+  "importDataSuccess": "Importados {count} repostajes",
+  "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
+
+  "importDataError": "Error al importar",
+  "@importDataError": {"description": "Import data error message"}
 }
