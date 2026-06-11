@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/refuel_provider.dart';
 import '../models/refuel.dart';
 import '../utils/formatters.dart';
+import '../utils/snackbar_helper.dart';
 import '../widgets/refuel_tile.dart';
 import 'add_refuel_screen.dart';
 
@@ -77,7 +78,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   Future<void> _confirmDeleteAll(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final result = await showDialog<bool>(
       context: context,
@@ -103,23 +103,19 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       final refuels = ref.read(refuelListProvider).valueOrNull ?? [];
       await ref.read(refuelListProvider.notifier).deleteAllRefuels();
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(l10n.deletedRecords(refuels.length)),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () async {
-                await ref.read(refuelListProvider.notifier).restoreAllRefuels(refuels);
-              },
-            ),
-          ),
+        SnackBarHelper.showUndo(
+          context,
+          l10n.deletedRecords(refuels.length),
+          undoLabel: l10n.undo,
+          onUndo: () async {
+            await ref.read(refuelListProvider.notifier).restoreAllRefuels(refuels);
+          },
         );
       }
     }
   }
 
   Future<void> _confirmDeleteSingle(BuildContext context, Refuel item) async {
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final result = await showDialog<bool>(
@@ -148,16 +144,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     if (result == true) {
       await ref.read(refuelListProvider.notifier).deleteRefuel(item.id!);
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(l10n.refuelDeleted),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () {
-                ref.read(refuelListProvider.notifier).addRefuel(item);
-              },
-            ),
-          ),
+        SnackBarHelper.showUndo(
+          context,
+          l10n.refuelDeleted,
+          undoLabel: l10n.undo,
+          onUndo: () {
+            ref.read(refuelListProvider.notifier).addRefuel(item);
+          },
         );
       }
     }

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 import '../utils/formatters.dart';
+import '../utils/snackbar_helper.dart';
 import '../widgets/add_refuel_form.dart';
 import '../widgets/zoomable_chart.dart';
 import 'consumption_chart_fullscreen.dart';
@@ -138,9 +139,7 @@ class HomeScreen extends ConsumerWidget {
               compact: true,
               clearOnSave: true,
               onSaved: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.refuelAddedSuccessfully)),
-                );
+                SnackBarHelper.showSuccess(context, l10n.refuelAddedSuccessfully);
               },
             ),
           ],

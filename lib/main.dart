@@ -22,19 +22,18 @@ class _DebugProviderObserver extends ProviderObserver {
     );
   }
 
-  // ignore: unused_element
   @override
-  void valueDidChange(
+  void didUpdateProvider(
     ProviderBase<Object?> provider,
     Object? previousValue,
-    Object? nextValue,
+    Object? newValue,
     ProviderContainer container,
   ) {
     if (kDebugMode) {
       AppLogger.instance.logProviderTransition(
         provider.name ?? provider.runtimeType.toString(),
         previousValue,
-        nextValue,
+        newValue,
       );
     }
   }

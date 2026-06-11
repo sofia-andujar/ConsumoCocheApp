@@ -14,6 +14,7 @@ import '../providers/locale_provider.dart';
 import '../providers/refuel_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/snackbar_helper.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   static const routeName = '/settings';
@@ -385,15 +386,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         final msg = count > 0
             ? l10n.importDataSuccess(count)
             : '${l10n.importDataError}: ${l10n.noRefuelsRegistered}';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        if (count > 0) {
+          SnackBarHelper.showSuccess(context, msg);
+        } else {
+          SnackBarHelper.showWarning(context, msg);
+        }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.importDataError}: $e')),
-        );
+        SnackBarHelper.showError(context, '${l10n.importDataError}: $e');
       }
     }
   }
@@ -402,9 +403,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final refuels = ref.read(refuelListProvider).valueOrNull ?? [];
     if (refuels.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.noRefuelsRegistered)),
-        );
+        SnackBarHelper.showWarning(context, AppLocalizations.of(context)!.noRefuelsRegistered);
       }
       return;
     }
@@ -428,15 +427,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (savePath == null) return;
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.exportDataSuccess)),
-        );
+        SnackBarHelper.showSuccess(context, AppLocalizations.of(context)!.exportDataSuccess);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.exportDataError}: $e')),
-        );
+        SnackBarHelper.showError(context, '${AppLocalizations.of(context)!.exportDataError}: $e');
       }
     }
   }
@@ -449,36 +444,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final success = await ref.read(backupProvider.notifier).backup();
       if (mounted) {
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.backupSuccess)),
-          );
+          SnackBarHelper.showSuccess(context, l10n.backupSuccess);
         } else {
           final state = ref.read(backupProvider);
           final msg = state.message;
           if (msg == 'authRequired') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.signInRequired)),
-            );
+            SnackBarHelper.showWarning(context, l10n.signInRequired);
           } else if (msg == 'driveScopeRequired') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.driveScopeRequired)),
-            );
+            SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
           } else if (msg == 'noData') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.noRefuelsRegistered)),
-            );
+            SnackBarHelper.showWarning(context, l10n.noRefuelsRegistered);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.backupError(msg ?? ''))),
-            );
+            SnackBarHelper.showError(context, l10n.backupError(msg ?? ''));
           }
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.backupError(e.toString()))),
-        );
+        SnackBarHelper.showError(context, l10n.backupError(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -515,36 +498,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final success = await ref.read(backupProvider.notifier).restore(clearExisting: true);
       if (mounted) {
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.restoreSuccess)),
-          );
+          SnackBarHelper.showSuccess(context, l10n.restoreSuccess);
         } else {
           final state = ref.read(backupProvider);
           final msg = state.message;
           if (msg == 'authRequired') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.signInRequired)),
-            );
+            SnackBarHelper.showWarning(context, l10n.signInRequired);
           } else if (msg == 'driveScopeRequired') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.driveScopeRequired)),
-            );
+            SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
           } else if (msg?.contains('No backup found') == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.noBackupFound)),
-            );
+            SnackBarHelper.showWarning(context, l10n.noBackupFound);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.restoreError(msg ?? ''))),
-            );
+            SnackBarHelper.showError(context, l10n.restoreError(msg ?? ''));
           }
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.restoreError(e.toString()))),
-        );
+        SnackBarHelper.showError(context, l10n.restoreError(e.toString()));
       }
     } finally {
       if (mounted) {

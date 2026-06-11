@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import '../providers/refuel_provider.dart';
 import '../utils/formatters.dart';
+import '../utils/snackbar_helper.dart';
 
 class AddRefuelForm extends ConsumerStatefulWidget {
   final Refuel? refuel;
@@ -109,9 +110,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
 
     if (!isEditing && widget.onSaved == null) {
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.refuelAddedSuccessfully)),
-      );
+      SnackBarHelper.showSuccess(context, l10n.refuelAddedSuccessfully);
     }
 
     if (isEditing && widget.onSaved == null) {

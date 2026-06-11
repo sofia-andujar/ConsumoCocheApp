@@ -139,9 +139,9 @@ class AppTheme {
         elevation: 4,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: accentContainer,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentTextStyle: TextStyle(color: accentContainerOnColor),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: pastelCream,
@@ -244,9 +244,9 @@ class AppTheme {
         elevation: 4,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: cardColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentTextStyle: TextStyle(color: accentContainerOnColor),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: cardColor,
