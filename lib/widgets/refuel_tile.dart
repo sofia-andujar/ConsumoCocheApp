@@ -17,6 +17,12 @@ class RefuelTile extends StatelessWidget {
     this.onEdit,
   });
 
+  Color _consumptionColor(double consumption, ThemeData theme) {
+    if (consumption <= 6.0) return Colors.green.shade700;
+    if (consumption <= 9.0) return Colors.orange.shade700;
+    return Colors.red.shade700;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -26,67 +32,146 @@ class RefuelTile extends StatelessWidget {
         : DateFormat.yMMMd(locale).format(refuel.date);
     final format = decimalFormat(locale);
     final theme = Theme.of(context);
+    final consumptionColor = _consumptionColor(refuel.consumptionLPer100Km, theme);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: AppTheme.spaceSm),
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.spaceMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(dateText, style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: AppTheme.spaceSm),
-                      Text(
-                        '${format.format(refuel.consumptionLPer100Km)} L/100km',
-                        style: theme.textTheme.titleMedium,
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: AppTheme.spaceSm),
+        child: InkWell(
+          onLongPress: onEdit != null
+              ? () {
+                  final box = context.findRenderObject() as RenderBox?;
+                  if (box == null) return;
+                  final position = box.localToGlobal(Offset.zero);
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      position.dx + box.size.width,
+                      position.dy,
+                      position.dx + box.size.width,
+                      position.dy + box.size.height,
+                    ),
+                    items: [
+                      PopupMenuItem(
+                        onTap: onEdit,
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined, size: 20, color: theme.colorScheme.primary),
+                            const SizedBox(width: 12),
+                            Text(l10n.editRefuel),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        onTap: onDelete,
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, size: 20, color: theme.colorScheme.error),
+                            const SizedBox(width: 12),
+                            Text(l10n.delete, style: TextStyle(color: theme.colorScheme.error)),
+                          ],
+                        ),
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(width: AppTheme.spaceMd),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  );
+                }
+              : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.spaceMd),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text('${format.format(refuel.kilometers)} km', style: theme.textTheme.bodyMedium),
-                    Text('${format.format(refuel.liters)} L', style: theme.textTheme.bodyMedium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(dateText, style: theme.textTheme.titleSmall, overflow: TextOverflow.ellipsis),
+                          const SizedBox(height: AppTheme.spaceSm),
+                          Text(
+                            '${format.format(refuel.consumptionLPer100Km)} L/100km',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: consumptionColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spaceMd),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('${format.format(refuel.kilometers)} km', style: theme.textTheme.bodyMedium),
+                        Text('${format.format(refuel.liters)} L', style: theme.textTheme.bodyMedium),
+                      ],
+                    ),
+                    const SizedBox(width: 4),
+                    Semantics(
+                      label: l10n.moreOptions,
+                      child: IconButton(
+                        icon: const Icon(Icons.more_vert, size: 20),
+                        tooltip: l10n.moreOptions,
+                        visualDensity: VisualDensity.compact,
+                        onPressed: onEdit != null
+                            ? () {
+                                final box = context.findRenderObject() as RenderBox?;
+                                if (box == null) return;
+                                final position = box.localToGlobal(Offset.zero);
+                                showMenu(
+                                  context: context,
+                                  position: RelativeRect.fromLTRB(
+                                    position.dx + box.size.width,
+                                    position.dy,
+                                    position.dx + box.size.width,
+                                    position.dy + box.size.height,
+                                  ),
+                                  items: [
+                                    PopupMenuItem(
+                                      onTap: onEdit,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit_outlined, size: 20, color: theme.colorScheme.primary),
+                                          const SizedBox(width: 12),
+                                          Text(l10n.editRefuel),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      onTap: onDelete,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete_outline, size: 20, color: theme.colorScheme.error),
+                                          const SizedBox(width: 12),
+                                          Text(l10n.delete, style: TextStyle(color: theme.colorScheme.error)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            : null,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(width: AppTheme.spaceMd),
-                Semantics(
-                  label: l10n.editRefuelTooltip,
-                  child: IconButton(
-                    icon: const Icon(Icons.edit_outlined),
-                    tooltip: l10n.editRefuelTooltip,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: onEdit,
+                if (refuel.comment.isNotEmpty) ...[
+                  const SizedBox(height: AppTheme.spaceMd),
+                  Text(
+                    refuel.comment,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      color: theme.colorScheme.onSurface.withAlpha(160),
+                    ),
                   ),
-                ),
-                Semantics(
-                  label: l10n.deleteRefuelTooltip,
-                  child: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    color: theme.colorScheme.error,
-                    tooltip: l10n.deleteRefuelTooltip,
-                    visualDensity: VisualDensity.compact,
-                    onPressed: onDelete,
-                  ),
-                ),
+                ],
               ],
             ),
-            if (refuel.comment.isNotEmpty) ...[
-              const SizedBox(height: AppTheme.spaceMd),
-              Text(
-                refuel.comment,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

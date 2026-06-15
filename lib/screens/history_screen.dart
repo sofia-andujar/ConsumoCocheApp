@@ -6,8 +6,8 @@ import '../providers/refuel_provider.dart';
 import '../models/refuel.dart';
 import '../utils/formatters.dart';
 import '../utils/snackbar_helper.dart';
+import '../widgets/add_refuel_form.dart';
 import '../widgets/refuel_tile.dart';
-import 'add_refuel_screen.dart';
 
 enum SortField { date, consumption, distance, liters }
 
@@ -28,6 +28,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   bool _showFilter = false;
   SortField _sortField = SortField.date;
   SortDirection _sortDirection = SortDirection.descending;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _selectStartDate(BuildContext context) async {
     final now = DateTime.now();
@@ -156,6 +164,39 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     }
   }
 
+  void _showEditBottomSheet(Refuel item) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.editRefuel, style: Theme.of(ctx).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                AddRefuelForm(
+                  refuel: item,
+                  onSaved: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   List<Refuel> _applySortAndFilter(List<Refuel> refuels) {
     var result = refuels.where((refuel) {
       if (_startDate != null && refuel.date.isBefore(_startDate!)) {
@@ -164,6 +205,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       if (_endDate != null) {
         final endOfDay = _endDate!.add(const Duration(days: 1));
         if (refuel.date.isAfter(endOfDay)) {
+          return false;
+        }
+      }
+      if (_searchQuery.isNotEmpty) {
+        if (!refuel.comment.toLowerCase().contains(_searchQuery.toLowerCase())) {
           return false;
         }
       }
@@ -216,11 +262,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         title: Text(l10n.history),
         actions: [
           PopupMenuButton<SortField>(
-            icon: Icon(
-              _sortDirection == SortDirection.descending
-                  ? Icons.arrow_downward
-                  : Icons.arrow_upward,
-            ),
+            icon: const Icon(Icons.sort),
             tooltip: l10n.sort,
             onSelected: (field) {
               if (_sortField == field) {
@@ -264,6 +306,27 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 _endDate = now;
               }
             }),
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: l10n.moreOptions,
+            onSelected: (value) {
+              if (value == 'deleteAll') {
+                _confirmDeleteAll(context);
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'deleteAll',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.error, size: 20),
+                    const SizedBox(width: 12),
+                    Text(l10n.deleteAll),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -338,6 +401,28 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 ],
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: l10n.searchComments,
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
+                isDense: true,
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+              ),
+              onChanged: (value) => setState(() => _searchQuery = value),
+            ),
+          ),
           Expanded(
             child: refuelState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -357,59 +442,127 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
               data: (refuels) {
                 if (refuels.isEmpty) {
-                  return Center(
-                    child: Text(l10n.noRefuelsRegistered),
-                  );
+                  return _buildEmptyState(context, l10n);
                 }
 
                 final filteredRefuels = _applySortAndFilter(refuels);
 
                 if (filteredRefuels.isEmpty) {
-                  return Center(
-                    child: Text(l10n.noRefuelsInRange),
-                  );
+                  return _buildNoResultsState(context, l10n);
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  itemCount: filteredRefuels.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == filteredRefuels.length) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 24),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.error,
-                              foregroundColor: Theme.of(context).colorScheme.onError,
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            l10n.recordCount(filteredRefuels.length),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
                             ),
-                            icon: const Icon(Icons.delete_forever),
-                            label: Text(l10n.deleteAllRecords),
-                            onPressed: () => _confirmDeleteAll(context),
                           ),
-                        ),
-                      );
-                    }
-                    final item = filteredRefuels[index];
-                    return RefuelTile(
-                      refuel: item,
-                      onDelete: item.id != null
-                          ? () => _confirmDeleteSingle(context, item)
-                          : () {},
-                      onEdit: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AddRefuelScreen(refuel: item),
-                        ),
+                          const Spacer(),
+                          Text(
+                            l10n.swipeHint,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withAlpha(100),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        itemCount: filteredRefuels.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredRefuels[index];
+                          return Dismissible(
+                            key: ValueKey(item.id ?? index),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.error,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.only(right: 20),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.onError,
+                              ),
+                            ),
+                            confirmDismiss: (direction) async {
+                              if (item.id == null) return false;
+                              await _confirmDeleteSingle(context, item);
+                              return false;
+                            },
+                            child: RefuelTile(
+                              refuel: item,
+                              onDelete: item.id != null
+                                  ? () => _confirmDeleteSingle(context, item)
+                                  : () {},
+                              onEdit: () => _showEditBottomSheet(item),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.history_outlined,
+            size: 64,
+            color: theme.colorScheme.onSurface.withAlpha(80),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.noRefuelsRegistered,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(150),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResultsState(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: theme.colorScheme.onSurface.withAlpha(80),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.noResults,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(150),
             ),
           ),
         ],

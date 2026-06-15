@@ -29,6 +29,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _backingUp = false;
   bool _restoring = false;
 
+  static const String _appVersion = '1.0.0';
+
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(themeSettingsProvider);
@@ -38,7 +40,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.customizeTheme)),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -160,6 +162,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _buildExportCard(context, theme, l10n),
           const SizedBox(height: 16),
           _buildImportCard(context, theme, l10n),
+          const SizedBox(height: 16),
+          _buildAboutCard(context, theme, l10n),
           const SizedBox(height: 24),
           Text(
             l10n.settingsPersist,
@@ -237,10 +241,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.signedInAs(account.email),
-          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withAlpha(180)),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: theme.colorScheme.primaryContainer,
+              child: Text(
+                (account.displayName ?? account.email).isNotEmpty
+                    ? (account.displayName ?? account.email)[0].toUpperCase()
+                    : '?',
+                style: TextStyle(
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (account.displayName != null && account.displayName!.isNotEmpty)
+                    Text(
+                      account.displayName!,
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  Text(
+                    l10n.signedInAs(account.email),
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withAlpha(180)),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
@@ -258,6 +292,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: _restoring ? null : _doRestore,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.colorScheme.error,
+                  side: BorderSide(color: theme.colorScheme.error, width: 1.5),
+                ),
                 icon: _restoring
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.cloud_download, size: 18),
@@ -342,6 +380,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Widget _buildAboutCard(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.info_outline, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(l10n.about, style: theme.textTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.versionLabel(_appVersion),
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => showLicensePage(
+                  context: context,
+                  applicationName: l10n.appTitle,
+                  applicationVersion: _appVersion,
+                ),
+                icon: const Icon(Icons.description_outlined, size: 18),
+                label: Text(l10n.licenses),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _doImport() async {
     final l10n = AppLocalizations.of(context)!;
 
@@ -376,6 +452,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         } on FormatException {
           content = latin1.decode(bytes);
         }
+      }
+
+      final lines = content.split('\n').where((l) => l.trim().isNotEmpty).toList();
+      final dataRowCount = lines.length > 1 ? lines.length - 1 : 0;
+
+      if (dataRowCount <= 0) {
+        if (mounted) {
+          SnackBarHelper.showWarning(context, '${l10n.importDataError}: ${l10n.noRefuelsRegistered}');
+        }
+        return;
+      }
+
+      if (mounted) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(l10n.importConfirmTitle),
+            content: Text(l10n.importConfirmMessage(dataRowCount)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(l10n.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(l10n.import),
+              ),
+            ],
+          ),
+        );
+
+        if (confirmed != true) return;
       }
 
       final count = await RefuelDatabase.instance.importFromCsv(content, clearExisting: false);

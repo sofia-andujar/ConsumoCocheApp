@@ -238,5 +238,83 @@
   "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
 
   "importDataError": "Import error",
-  "@importDataError": {"description": "Import data error message"}
+  "@importDataError": {"description": "Import data error message"},
+
+  "settings": "Settings",
+  "@settings": {"description": "Settings screen title"},
+
+  "viewHistory": "View history",
+  "@viewHistory": {"description": "Hint on average card"},
+
+  "totalKm": "Total distance",
+  "@totalKm": {"description": "Total distance label"},
+
+  "totalLiters": "Total liters",
+  "@totalLiters": {"description": "Total liters label"},
+
+  "bestFillUp": "Best",
+  "@bestFillUp": {"description": "Best fill-up label"},
+
+  "worstFillUp": "Worst",
+  "@worstFillUp": {"description": "Worst fill-up label"},
+
+  "emptyStateTitle": "No refuels yet",
+  "@emptyStateTitle": {"description": "Home empty state title"},
+
+  "emptyStateSubtitle": "Add your first refuel to start tracking",
+  "@emptyStateSubtitle": {"description": "Home empty state subtitle"},
+
+  "discardChanges": "Discard changes?",
+  "@discardChanges": {"description": "Discard changes dialog title"},
+
+  "discardChangesMessage": "Unsaved changes will be lost.",
+  "@discardChangesMessage": {"description": "Discard changes dialog message"},
+
+  "discard": "Discard",
+  "@discard": {"description": "Discard button"},
+
+  "keepEditing": "Keep editing",
+  "@keepEditing": {"description": "Keep editing button"},
+
+  "recordCount": "{count} records",
+  "@recordCount": {"description": "History record count", "placeholders": {"count": {"type": "int"}}},
+
+  "searchComments": "Search comments...",
+  "@searchComments": {"description": "Search hint"},
+
+  "noResults": "No results",
+  "@noResults": {"description": "No search results"},
+
+  "about": "About",
+  "@about": {"description": "About section"},
+
+  "licenses": "Licenses",
+  "@licenses": {"description": "Licenses button"},
+
+  "versionLabel": "Version {version}",
+  "@versionLabel": {"description": "Version label", "placeholders": {"version": {"type": "String"}}},
+
+  "pinchToZoom": "Pinch to zoom",
+  "@pinchToZoom": {"description": "Chart gesture hint"},
+
+  "zoomFitScreen": "Fit to screen",
+  "@zoomFitScreen": {"description": "Zoom fit screen tooltip"},
+
+  "resetZoomTooltip": "Reset zoom",
+  "@resetZoomTooltip": {"description": "Reset zoom tooltip"},
+
+  "moreOptions": "More options",
+  "@moreOptions": {"description": "More options tooltip"},
+
+  "importConfirmTitle": "Import data?",
+  "@importConfirmTitle": {"description": "Import confirmation title"},
+
+  "importConfirmMessage": "{count} refuels will be imported from the file.",
+  "@importConfirmMessage": {"description": "Import confirmation message", "placeholders": {"count": {"type": "int"}}},
+
+  "import": "Import",
+  "@import": {"description": "Import button"},
+
+  "swipeHint": "Swipe to delete",
+  "@swipeHint": {"description": "Swipe to delete hint"}
 }

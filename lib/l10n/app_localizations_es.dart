@@ -345,4 +345,88 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get importDataError => 'Error al importar';
+
+  @override
+  String get settings => 'Ajustes';
+
+  @override
+  String get viewHistory => 'Ver historial';
+
+  @override
+  String get totalKm => 'Distancia total';
+
+  @override
+  String get totalLiters => 'Litros totales';
+
+  @override
+  String get bestFillUp => 'Mejor';
+
+  @override
+  String get worstFillUp => 'Peor';
+
+  @override
+  String get emptyStateTitle => 'Sin repostajes';
+
+  @override
+  String get emptyStateSubtitle => 'Añade tu primer repostaje para empezar';
+
+  @override
+  String get discardChanges => '¿Descartar cambios?';
+
+  @override
+  String get discardChangesMessage => 'Los cambios no guardados se perderán.';
+
+  @override
+  String get discard => 'Descartar';
+
+  @override
+  String get keepEditing => 'Seguir editando';
+
+  @override
+  String recordCount(int count) {
+    return '$count registros';
+  }
+
+  @override
+  String get searchComments => 'Buscar comentarios...';
+
+  @override
+  String get noResults => 'Sin resultados';
+
+  @override
+  String get about => 'Acerca de';
+
+  @override
+  String get licenses => 'Licencias';
+
+  @override
+  String versionLabel(String version) {
+    return 'Versión $version';
+  }
+
+  @override
+  String get pinchToZoom => 'Pellizca para ampliar';
+
+  @override
+  String get zoomFitScreen => 'Ajustar a pantalla';
+
+  @override
+  String get resetZoomTooltip => 'Restablecer zoom';
+
+  @override
+  String get moreOptions => 'Más opciones';
+
+  @override
+  String get importConfirmTitle => '¿Importar datos?';
+
+  @override
+  String importConfirmMessage(int count) {
+    return 'Se importarán $count repostajes del archivo.';
+  }
+
+  @override
+  String get import => 'Importar';
+
+  @override
+  String get swipeHint => 'Desliza para eliminar';
 }

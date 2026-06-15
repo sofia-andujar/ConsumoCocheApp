@@ -36,6 +36,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
   bool showConsumption = true;
   bool showMean = true;
   bool showAO5 = true;
+  bool _showedGestureHint = false;
 
   void toggleLine(int index) {
     final activeStates = [showConsumption, showMean, showAO5];
@@ -54,6 +55,16 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           if (showAO5 && visibleLines == 1) return;
           showAO5 = !showAO5;
           break;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _showedGestureHint = true);
       }
     });
   }
@@ -94,7 +105,6 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     final consumptionValues = _consumptionValues();
     final cumulativeMeanValues = ChartComputations.cumulativeMean(consumptionValues);
     final ao5Values = ChartComputations.movingAverage(consumptionValues, 5);
-    final visibleLines = [showConsumption, showMean, showAO5].where((item) => item).length;
 
     return Card(
       elevation: widget.showTitle ? 4 : 0,
@@ -144,39 +154,54 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                   );
                 },
               ),
-              const SizedBox(height: 0),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  _LegendToggle(
-                    color: consumptionColor,
-                    label: l10n.legendConsumption,
-                    active: showConsumption,
-                    onTap: () => toggleLine(0),
-                  ),
-                  _LegendToggle(
-                    color: meanColor,
-                    label: l10n.legendMean,
-                    active: showMean,
-                    onTap: () => toggleLine(1),
-                  ),
-                  _LegendToggle(
-                    color: ao5Color,
-                    label: l10n.legendAo5,
-                    active: showAO5,
-                    onTap: () => toggleLine(2),
-                  ),
-                ],
-              ),
-              if (visibleLines == 0)
+              if (!widget.showTitle && !_showedGestureHint)
                 Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
-                  child: Text(
-                    l10n.noVisibleLines,
-                    style: Theme.of(context).textTheme.bodySmall,
+                  padding: const EdgeInsets.only(top: 4),
+                  child: AnimatedOpacity(
+                    opacity: _showedGestureHint ? 0 : 1,
+                    duration: const Duration(milliseconds: 500),
+                    child: Row(
+                      children: [
+                        Icon(Icons.pinch, size: 14, color: theme.colorScheme.onSurface.withAlpha(100)),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.pinchToZoom,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withAlpha(100),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _LegendToggle(
+                      color: consumptionColor,
+                      label: l10n.legendConsumption,
+                      active: showConsumption,
+                      onTap: () => toggleLine(0),
+                    ),
+                    const SizedBox(width: 8),
+                    _LegendToggle(
+                      color: meanColor,
+                      label: l10n.legendMean,
+                      active: showMean,
+                      onTap: () => toggleLine(1),
+                    ),
+                    const SizedBox(width: 8),
+                    _LegendToggle(
+                      color: ao5Color,
+                      label: l10n.legendAo5,
+                      active: showAO5,
+                      onTap: () => toggleLine(2),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -339,7 +364,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
           sideTitles: SideTitles(
             showTitles: true,
             interval: yInterval,
-            reservedSize: 20,
+            reservedSize: 35,
             getTitlesWidget: (value, meta) {
               if (value - minY < yInterval * 0.01 || maxY - value < yInterval * 0.01) {
                 return const SizedBox.shrink();

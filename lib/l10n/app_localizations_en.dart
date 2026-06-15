@@ -340,4 +340,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importDataError => 'Import error';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get viewHistory => 'View history';
+
+  @override
+  String get totalKm => 'Total distance';
+
+  @override
+  String get totalLiters => 'Total liters';
+
+  @override
+  String get bestFillUp => 'Best';
+
+  @override
+  String get worstFillUp => 'Worst';
+
+  @override
+  String get emptyStateTitle => 'No refuels yet';
+
+  @override
+  String get emptyStateSubtitle => 'Add your first refuel to start tracking';
+
+  @override
+  String get discardChanges => 'Discard changes?';
+
+  @override
+  String get discardChangesMessage => 'Unsaved changes will be lost.';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String recordCount(int count) {
+    return '$count records';
+  }
+
+  @override
+  String get searchComments => 'Search comments...';
+
+  @override
+  String get noResults => 'No results';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get licenses => 'Licenses';
+
+  @override
+  String versionLabel(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get pinchToZoom => 'Pinch to zoom';
+
+  @override
+  String get zoomFitScreen => 'Fit to screen';
+
+  @override
+  String get resetZoomTooltip => 'Reset zoom';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String get importConfirmTitle => 'Import data?';
+
+  @override
+  String importConfirmMessage(int count) {
+    return '$count refuels will be imported from the file.';
+  }
+
+  @override
+  String get import => 'Import';
+
+  @override
+  String get swipeHint => 'Swipe to delete';
 }

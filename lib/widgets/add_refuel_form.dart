@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
@@ -12,8 +13,20 @@ class AddRefuelForm extends ConsumerStatefulWidget {
   final VoidCallback? onSaved;
   final bool clearOnSave;
   final bool compact;
+  final bool autofocus;
 
-  const AddRefuelForm({super.key, this.refuel, this.onSaved, this.clearOnSave = false, this.compact = false});
+  const AddRefuelForm({
+    super.key,
+    this.refuel,
+    this.onSaved,
+    this.clearOnSave = false,
+    this.compact = false,
+    this.autofocus = false,
+  });
+
+  static AddRefuelFormState? formKeyOf(BuildContext context) {
+    return context.findAncestorStateOfType<AddRefuelFormState>();
+  }
 
   @override
   AddRefuelFormState createState() => AddRefuelFormState();
@@ -29,6 +42,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
   bool get isEditing => widget.refuel != null;
 
   bool _initialized = false;
+  bool _isDirty = false;
+
+  bool get isDirty => _isDirty;
 
   @override
   void initState() {
@@ -36,6 +52,15 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     if (widget.refuel != null) {
       _selectedDate = widget.refuel!.date;
       _commentController.text = widget.refuel!.comment;
+    }
+    _kilometerController.addListener(_markDirty);
+    _litersController.addListener(_markDirty);
+    _commentController.addListener(_markDirty);
+  }
+
+  void _markDirty() {
+    if (!_isDirty) {
+      setState(() => _isDirty = true);
     }
   }
 
@@ -53,6 +78,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
 
   @override
   void dispose() {
+    _kilometerController.removeListener(_markDirty);
+    _litersController.removeListener(_markDirty);
+    _commentController.removeListener(_markDirty);
     _kilometerController.dispose();
     _litersController.dispose();
     _commentController.dispose();
@@ -60,16 +88,19 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
   }
 
   Future<void> _pickDate(BuildContext context) async {
+    final now = DateTime.now();
+    final endOfToday = DateTime(now.year, now.month, now.day, 23, 59, 59);
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      lastDate: endOfToday,
     );
 
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
+        _isDirty = true;
       });
     }
   }
@@ -80,6 +111,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     _commentController.clear();
     setState(() {
       _selectedDate = DateTime.now();
+      _isDirty = false;
     });
   }
 
@@ -102,8 +134,14 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
 
     if (!mounted) return;
 
+    await HapticFeedback.selectionClick();
+
+    if (!mounted) return;
+
     if (widget.clearOnSave && !isEditing) {
       _clearForm();
+    } else {
+      _isDirty = false;
     }
 
     widget.onSaved?.call();
@@ -118,6 +156,28 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     }
   }
 
+  String? _validateDistance(String? value, AppLocalizations l10n) {
+    if (value == null || value.isEmpty) {
+      return widget.compact ? l10n.required : l10n.enterDistance;
+    }
+    final n = parseDecimalInput(value);
+    if (n == null) return widget.compact ? l10n.invalid : l10n.invalidNumericValue;
+    if (n <= 0) return widget.compact ? l10n.mustBeGreaterThanZero : l10n.mustBeGreaterThanZeroFull;
+    if (n > 5000) return l10n.unrealisticDistance;
+    return null;
+  }
+
+  String? _validateLiters(String? value, AppLocalizations l10n) {
+    if (value == null || value.isEmpty) {
+      return widget.compact ? l10n.required : l10n.enterLiters;
+    }
+    final n = parseDecimalInput(value);
+    if (n == null) return widget.compact ? l10n.invalid : l10n.invalidNumericValue;
+    if (n <= 0) return widget.compact ? l10n.mustBeGreaterThanZero : l10n.mustBeGreaterThanZeroFull;
+    if (n > 200) return l10n.unrealisticLiters;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -125,96 +185,85 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     final dateText = DateFormat.yMMMd(locale).format(_selectedDate);
 
     if (widget.compact) {
-      return Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            InkWell(
-              onTap: () => _pickDate(context),
-              borderRadius: BorderRadius.circular(8),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: l10n.date,
-                  border: const OutlineInputBorder(),
-                  suffixIcon: const Icon(Icons.calendar_month),
-                ),
-                child: Text(dateText),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _kilometerController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: l10n.distanceKm,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.required;
-                      }
-                      final n = parseDecimalInput(value);
-                      if (n == null) return l10n.invalid;
-                      if (n <= 0) return l10n.mustBeGreaterThanZero;
-                      if (n > 5000) return l10n.unrealisticDistance;
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _litersController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: l10n.liters,
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.required;
-                      }
-                      final n = parseDecimalInput(value);
-                      if (n == null) return l10n.invalid;
-                      if (n <= 0) return l10n.mustBeGreaterThanZero;
-                      if (n > 200) return l10n.unrealisticLiters;
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _commentController,
-              keyboardType: TextInputType.text,
-              maxLength: 200,
-              decoration: InputDecoration(
-                labelText: l10n.commentOptional,
-                border: const OutlineInputBorder(),
-                isDense: true,
-                hintText: l10n.addNote,
-                counterText: '',
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _save,
-                child: Text(isEditing ? l10n.update : l10n.save),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildCompactForm(l10n, dateText);
     }
 
+    return _buildFullForm(l10n, dateText);
+  }
+
+  Widget _buildCompactForm(AppLocalizations l10n, String dateText) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => _pickDate(context),
+            borderRadius: BorderRadius.circular(8),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: l10n.date,
+                border: const OutlineInputBorder(),
+                suffixIcon: const Icon(Icons.calendar_month),
+              ),
+              child: Text(dateText),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _kilometerController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.distanceKm,
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  validator: (v) => _validateDistance(v, l10n),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  controller: _litersController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.liters,
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  validator: (v) => _validateLiters(v, l10n),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _commentController,
+            keyboardType: TextInputType.text,
+            maxLength: 200,
+            decoration: InputDecoration(
+              labelText: l10n.commentOptional,
+              border: const OutlineInputBorder(),
+              isDense: true,
+              hintText: l10n.addNote,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _save,
+              child: Text(isEditing ? l10n.update : l10n.save),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFullForm(AppLocalizations l10n, String dateText) {
     return Form(
       key: _formKey,
       child: Column(
@@ -228,21 +277,13 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _kilometerController,
+            autofocus: widget.autofocus,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: l10n.distanceKm,
               border: const OutlineInputBorder(),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return l10n.enterDistance;
-              }
-              final n = parseDecimalInput(value);
-              if (n == null) return l10n.invalidNumericValue;
-              if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
-              if (n > 5000) return l10n.unrealisticDistance;
-              return null;
-            },
+            validator: (v) => _validateDistance(v, l10n),
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -252,16 +293,7 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               labelText: l10n.litersRefueled,
               border: const OutlineInputBorder(),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return l10n.enterLiters;
-              }
-              final n = parseDecimalInput(value);
-              if (n == null) return l10n.invalidNumericValue;
-              if (n <= 0) return l10n.mustBeGreaterThanZeroFull;
-              if (n > 200) return l10n.unrealisticLiters;
-              return null;
-            },
+            validator: (v) => _validateLiters(v, l10n),
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -272,7 +304,6 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               labelText: l10n.commentOptional,
               border: const OutlineInputBorder(),
               hintText: l10n.addNoteFull,
-              counterText: '',
             ),
           ),
           const SizedBox(height: 24),

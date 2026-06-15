@@ -41,7 +41,7 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: refuelState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const _SkeletonLoading(),
         error: (error, _) => Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -57,15 +57,96 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         data: (refuels) {
+          if (refuels.isEmpty) {
+            return _buildEmptyState(context, theme, l10n);
+          }
           final average = _averageConsumption(refuels);
           final sortedRefuels = [...refuels]..sort((a, b) => a.date.compareTo(b.date));
-          return _buildBody(context, theme, average, sortedRefuels, l10n, locale);
+          return _buildBody(context, theme, average, sortedRefuels, l10n, locale, ref);
         },
       ),
     );
   }
 
-  Widget _buildAverageCard(BuildContext context, ThemeData theme, double average, AppLocalizations l10n, String locale) {
+  Widget _buildEmptyState(BuildContext context, ThemeData theme, AppLocalizations l10n) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        // ignore: use_build_context_synchronously
+        final ref = ProviderScope.containerOf(context);
+        await ref.read(refuelListProvider.notifier).refresh();
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          const SizedBox(height: 48),
+          Icon(
+            Icons.local_gas_station_outlined,
+            size: 80,
+            color: theme.colorScheme.primary.withAlpha(100),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.emptyStateTitle,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(180),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.emptyStateSubtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(120),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          const _EmptyFormCard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, ThemeData theme, double average, List<Refuel> sortedRefuels, AppLocalizations l10n, String locale, WidgetRef ref) {
+    return RefreshIndicator(
+      onRefresh: () => ref.read(refuelListProvider.notifier).refresh(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Column(
+          children: [
+            _buildAverageCard(context, theme, average, l10n, locale, sortedRefuels),
+            const SizedBox(height: 8),
+            _buildSummaryRow(context, theme, sortedRefuels, l10n, locale),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final chartHeight = (constraints.maxWidth * 0.55).clamp(200.0, 280.0);
+                return SizedBox(
+                  height: chartHeight,
+                  child: ZoomableChart(
+                    refuels: sortedRefuels,
+                    interactive: false,
+                    onTap: (ctx) => Navigator.push(
+                      ctx,
+                      MaterialPageRoute(
+                        builder: (_) => ConsumptionChartFullScreen(refuels: sortedRefuels),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildFormCard(context, theme, l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAverageCard(BuildContext context, ThemeData theme, double average, AppLocalizations l10n, String locale, List<Refuel> refuels) {
     final format = decimalFormat(locale);
     return Card(
       margin: EdgeInsets.zero,
@@ -78,16 +159,19 @@ class HomeScreen extends ConsumerWidget {
             children: [
               Icon(Icons.local_gas_station, color: theme.colorScheme.primary, size: 28),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.averageConsumption, style: theme.textTheme.labelLarge),
-                  Text(
-                    average > 0 ? '${format.format(average)} L/100km' : l10n.addAtLeastOneRefuel,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.averageConsumption, style: theme.textTheme.labelLarge),
+                    Text(
+                      average > 0 ? '${format.format(average)} L/100km' : l10n.addAtLeastOneRefuel,
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
+              Icon(Icons.chevron_right, color: theme.colorScheme.onSurface.withAlpha(100)),
             ],
           ),
         ),
@@ -95,31 +179,50 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, ThemeData theme, double average, List<Refuel> sortedRefuels, AppLocalizations l10n, String locale) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+  Widget _buildSummaryRow(BuildContext context, ThemeData theme, List<Refuel> refuels, AppLocalizations l10n, String locale) {
+    final format = decimalFormat(locale);
+    final totalKm = refuels.fold<double>(0, (s, r) => s + r.kilometers);
+    final totalL = refuels.fold<double>(0, (s, r) => s + r.liters);
+    final best = refuels.reduce((a, b) => a.consumptionLPer100Km < b.consumptionLPer100Km ? a : b);
+    final worst = refuels.reduce((a, b) => a.consumptionLPer100Km > b.consumptionLPer100Km ? a : b);
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, keyboardHeight + 8),
-      child: Column(
-        children: [
-          _buildAverageCard(context, theme, average, l10n, locale),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 280,
-            child: ZoomableChart(
-              refuels: sortedRefuels,
-              interactive: false,
-              onTap: (ctx) => Navigator.push(
-                ctx,
-                MaterialPageRoute(
-                  builder: (_) => ConsumptionChartFullScreen(refuels: sortedRefuels),
-                ),
-              ),
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            _SummaryItem(
+              icon: Icons.straighten,
+              label: l10n.totalKm,
+              value: '${format.format(totalKm)} km',
+              theme: theme,
             ),
-          ),
-          const SizedBox(height: 8),
-          _buildFormCard(context, theme, l10n),
-        ],
+            _SummaryDivider(theme: theme),
+            _SummaryItem(
+              icon: Icons.opacity,
+              label: l10n.totalLiters,
+              value: '${format.format(totalL)} L',
+              theme: theme,
+            ),
+            _SummaryDivider(theme: theme),
+            _SummaryItem(
+              icon: Icons.trending_down,
+              label: l10n.bestFillUp,
+              value: format.format(best.consumptionLPer100Km),
+              theme: theme,
+              valueColor: Colors.green.shade700,
+            ),
+            _SummaryDivider(theme: theme),
+            _SummaryItem(
+              icon: Icons.trending_up,
+              label: l10n.worstFillUp,
+              value: format.format(worst.consumptionLPer100Km),
+              theme: theme,
+              valueColor: Colors.deepOrange.shade700,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -127,6 +230,155 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildFormCard(BuildContext context, ThemeData theme, AppLocalizations l10n) {
     return Card(
       margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.addRefuel, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            AddRefuelForm(
+              compact: true,
+              clearOnSave: true,
+              onSaved: () {
+                SnackBarHelper.showSuccess(context, l10n.refuelAddedSuccessfully);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final ThemeData theme;
+  final Color? valueColor;
+
+  const _SummaryItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.theme,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: theme.colorScheme.primary.withAlpha(180)),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: valueColor ?? theme.colorScheme.onSurface,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withAlpha(120),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SummaryDivider extends StatelessWidget {
+  final ThemeData theme;
+  const _SummaryDivider({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 36,
+      width: 1,
+      color: theme.colorScheme.onSurface.withAlpha(25),
+    );
+  }
+}
+
+class _SkeletonLoading extends StatelessWidget {
+  const _SkeletonLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final skeletonColor = theme.colorScheme.onSurface.withAlpha(20);
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        children: [
+          _SkeletonCard(
+            height: 72,
+            color: skeletonColor,
+          ),
+          const SizedBox(height: 8),
+          _SkeletonCard(
+            height: 60,
+            color: skeletonColor,
+          ),
+          const SizedBox(height: 8),
+          _SkeletonCard(
+            height: 280,
+            color: skeletonColor,
+          ),
+          const SizedBox(height: 8),
+          _SkeletonCard(
+            height: 260,
+            color: skeletonColor,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonCard extends StatelessWidget {
+  final double height;
+  final Color color;
+
+  const _SkeletonCard({required this.height, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyFormCard extends StatelessWidget {
+  const _EmptyFormCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

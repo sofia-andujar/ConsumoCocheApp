@@ -238,5 +238,83 @@
   "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
 
   "importDataError": "Error en la importació",
-  "@importDataError": {"description": "Import data error message"}
+  "@importDataError": {"description": "Import data error message"},
+
+  "settings": "Configuració",
+  "@settings": {"description": "Settings screen title"},
+
+  "viewHistory": "Veure historial",
+  "@viewHistory": {"description": "Hint on average card"},
+
+  "totalKm": "Distància total",
+  "@totalKm": {"description": "Total distance label"},
+
+  "totalLiters": "Litres totals",
+  "@totalLiters": {"description": "Total liters label"},
+
+  "bestFillUp": "Millor",
+  "@bestFillUp": {"description": "Best fill-up label"},
+
+  "worstFillUp": "Pitjor",
+  "@worstFillUp": {"description": "Worst fill-up label"},
+
+  "emptyStateTitle": "Sense repostatges",
+  "@emptyStateTitle": {"description": "Home empty state title"},
+
+  "emptyStateSubtitle": "Afegeix el teu primer repostatge per començar",
+  "@emptyStateSubtitle": {"description": "Home empty state subtitle"},
+
+  "discardChanges": "Descartar canvis?",
+  "@discardChanges": {"description": "Discard changes dialog title"},
+
+  "discardChangesMessage": "Els canvis no desats es perdran.",
+  "@discardChangesMessage": {"description": "Discard changes dialog message"},
+
+  "discard": "Descartar",
+  "@discard": {"description": "Discard button"},
+
+  "keepEditing": "Continuar editant",
+  "@keepEditing": {"description": "Keep editing button"},
+
+  "recordCount": "{count} registres",
+  "@recordCount": {"description": "History record count", "placeholders": {"count": {"type": "int"}}},
+
+  "searchComments": "Cercar comentaris...",
+  "@searchComments": {"description": "Search hint"},
+
+  "noResults": "Sense resultats",
+  "@noResults": {"description": "No search results"},
+
+  "about": "Quant a",
+  "@about": {"description": "About section"},
+
+  "licenses": "Llicències",
+  "@licenses": {"description": "Licenses button"},
+
+  "versionLabel": "Versió {version}",
+  "@versionLabel": {"description": "Version label", "placeholders": {"version": {"type": "String"}}},
+
+  "pinchToZoom": "Pessiga per ampliar",
+  "@pinchToZoom": {"description": "Chart gesture hint"},
+
+  "zoomFitScreen": "Ajustar a pantalla",
+  "@zoomFitScreen": {"description": "Zoom fit screen tooltip"},
+
+  "resetZoomTooltip": "Restablir zoom",
+  "@resetZoomTooltip": {"description": "Reset zoom tooltip"},
+
+  "moreOptions": "Més opcions",
+  "@moreOptions": {"description": "More options tooltip"},
+
+  "importConfirmTitle": "Importar dades?",
+  "@importConfirmTitle": {"description": "Import confirmation title"},
+
+  "importConfirmMessage": "S'importaran {count} repostatges del fitxer.",
+  "@importConfirmMessage": {"description": "Import confirmation message", "placeholders": {"count": {"type": "int"}}},
+
+  "import": "Importar",
+  "@import": {"description": "Import button"},
+
+  "swipeHint": "Llisca per eliminar",
+  "@swipeHint": {"description": "Swipe to delete hint"}
 }

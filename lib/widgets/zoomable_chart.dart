@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
 import 'chart_viewport.dart';
 import 'consumption_chart.dart';
@@ -54,6 +55,7 @@ class _ZoomableChartState extends State<ZoomableChart> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     Widget chart = LayoutBuilder(
       builder: (context, constraints) {
@@ -106,15 +108,18 @@ class _ZoomableChartState extends State<ZoomableChart> {
             child: Material(
               color: theme.colorScheme.surfaceContainerHighest.withAlpha(200),
               borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: _xZoom > 1.0 ? _zoomOutMax : _resetViewport,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    _xZoom > 1.0 ? Icons.fit_screen : Icons.zoom_in,
-                    size: 18,
-                    color: theme.colorScheme.onSurface,
+              child: Tooltip(
+                message: _xZoom > 1.0 ? l10n.zoomFitScreen : l10n.resetZoomTooltip,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _xZoom > 1.0 ? _zoomOutMax : _resetViewport,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      _xZoom > 1.0 ? Icons.fit_screen : Icons.zoom_in,
+                      size: 18,
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ),

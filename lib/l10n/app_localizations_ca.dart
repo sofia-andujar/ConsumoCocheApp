@@ -346,4 +346,89 @@ class AppLocalizationsCa extends AppLocalizations {
 
   @override
   String get importDataError => 'Error en la importació';
+
+  @override
+  String get settings => 'Configuració';
+
+  @override
+  String get viewHistory => 'Veure historial';
+
+  @override
+  String get totalKm => 'Distància total';
+
+  @override
+  String get totalLiters => 'Litres totals';
+
+  @override
+  String get bestFillUp => 'Millor';
+
+  @override
+  String get worstFillUp => 'Pitjor';
+
+  @override
+  String get emptyStateTitle => 'Sense repostatges';
+
+  @override
+  String get emptyStateSubtitle =>
+      'Afegeix el teu primer repostatge per començar';
+
+  @override
+  String get discardChanges => 'Descartar canvis?';
+
+  @override
+  String get discardChangesMessage => 'Els canvis no desats es perdran.';
+
+  @override
+  String get discard => 'Descartar';
+
+  @override
+  String get keepEditing => 'Continuar editant';
+
+  @override
+  String recordCount(int count) {
+    return '$count registres';
+  }
+
+  @override
+  String get searchComments => 'Cercar comentaris...';
+
+  @override
+  String get noResults => 'Sense resultats';
+
+  @override
+  String get about => 'Quant a';
+
+  @override
+  String get licenses => 'Llicències';
+
+  @override
+  String versionLabel(String version) {
+    return 'Versió $version';
+  }
+
+  @override
+  String get pinchToZoom => 'Pessiga per ampliar';
+
+  @override
+  String get zoomFitScreen => 'Ajustar a pantalla';
+
+  @override
+  String get resetZoomTooltip => 'Restablir zoom';
+
+  @override
+  String get moreOptions => 'Més opcions';
+
+  @override
+  String get importConfirmTitle => 'Importar dades?';
+
+  @override
+  String importConfirmMessage(int count) {
+    return 'S\'importaran $count repostatges del fitxer.';
+  }
+
+  @override
+  String get import => 'Importar';
+
+  @override
+  String get swipeHint => 'Llisca per eliminar';
 }

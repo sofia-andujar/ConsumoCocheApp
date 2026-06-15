@@ -308,5 +308,83 @@
   "@importDataSuccess": {"description": "Import data success message", "placeholders": {"count": {"type": "int"}}},
 
   "importDataError": "Error al importar",
-  "@importDataError": {"description": "Import data error message"}
+  "@importDataError": {"description": "Import data error message"},
+
+  "settings": "Ajustes",
+  "@settings": {"description": "Settings screen title"},
+
+  "viewHistory": "Ver historial",
+  "@viewHistory": {"description": "Hint on average card"},
+
+  "totalKm": "Distancia total",
+  "@totalKm": {"description": "Total distance label"},
+
+  "totalLiters": "Litros totales",
+  "@totalLiters": {"description": "Total liters label"},
+
+  "bestFillUp": "Mejor",
+  "@bestFillUp": {"description": "Best fill-up label"},
+
+  "worstFillUp": "Peor",
+  "@worstFillUp": {"description": "Worst fill-up label"},
+
+  "emptyStateTitle": "Sin repostajes",
+  "@emptyStateTitle": {"description": "Home empty state title"},
+
+  "emptyStateSubtitle": "Añade tu primer repostaje para empezar",
+  "@emptyStateSubtitle": {"description": "Home empty state subtitle"},
+
+  "discardChanges": "¿Descartar cambios?",
+  "@discardChanges": {"description": "Discard changes dialog title"},
+
+  "discardChangesMessage": "Los cambios no guardados se perderán.",
+  "@discardChangesMessage": {"description": "Discard changes dialog message"},
+
+  "discard": "Descartar",
+  "@discard": {"description": "Discard button"},
+
+  "keepEditing": "Seguir editando",
+  "@keepEditing": {"description": "Keep editing button"},
+
+  "recordCount": "{count} registros",
+  "@recordCount": {"description": "History record count", "placeholders": {"count": {"type": "int"}}},
+
+  "searchComments": "Buscar comentarios...",
+  "@searchComments": {"description": "Search hint"},
+
+  "noResults": "Sin resultados",
+  "@noResults": {"description": "No search results"},
+
+  "about": "Acerca de",
+  "@about": {"description": "About section"},
+
+  "licenses": "Licencias",
+  "@licenses": {"description": "Licenses button"},
+
+  "versionLabel": "Versión {version}",
+  "@versionLabel": {"description": "Version label", "placeholders": {"version": {"type": "String"}}},
+
+  "pinchToZoom": "Pellizca para ampliar",
+  "@pinchToZoom": {"description": "Chart gesture hint"},
+
+  "zoomFitScreen": "Ajustar a pantalla",
+  "@zoomFitScreen": {"description": "Zoom fit screen tooltip"},
+
+  "resetZoomTooltip": "Restablecer zoom",
+  "@resetZoomTooltip": {"description": "Reset zoom tooltip"},
+
+  "moreOptions": "Más opciones",
+  "@moreOptions": {"description": "More options tooltip"},
+
+  "importConfirmTitle": "¿Importar datos?",
+  "@importConfirmTitle": {"description": "Import confirmation title"},
+
+  "importConfirmMessage": "Se importarán {count} repostajes del archivo.",
+  "@importConfirmMessage": {"description": "Import confirmation message", "placeholders": {"count": {"type": "int"}}},
+
+  "import": "Importar",
+  "@import": {"description": "Import button"},
+
+  "swipeHint": "Desliza para eliminar",
+  "@swipeHint": {"description": "Swipe to delete hint"}
 }

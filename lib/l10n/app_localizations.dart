@@ -717,6 +717,162 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Error al importar'**
   String get importDataError;
+
+  /// Settings screen title
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustes'**
+  String get settings;
+
+  /// Hint on average card
+  ///
+  /// In es, this message translates to:
+  /// **'Ver historial'**
+  String get viewHistory;
+
+  /// Total distance label
+  ///
+  /// In es, this message translates to:
+  /// **'Distancia total'**
+  String get totalKm;
+
+  /// Total liters label
+  ///
+  /// In es, this message translates to:
+  /// **'Litros totales'**
+  String get totalLiters;
+
+  /// Best fill-up label
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor'**
+  String get bestFillUp;
+
+  /// Worst fill-up label
+  ///
+  /// In es, this message translates to:
+  /// **'Peor'**
+  String get worstFillUp;
+
+  /// Home empty state title
+  ///
+  /// In es, this message translates to:
+  /// **'Sin repostajes'**
+  String get emptyStateTitle;
+
+  /// Home empty state subtitle
+  ///
+  /// In es, this message translates to:
+  /// **'Añade tu primer repostaje para empezar'**
+  String get emptyStateSubtitle;
+
+  /// Discard changes dialog title
+  ///
+  /// In es, this message translates to:
+  /// **'¿Descartar cambios?'**
+  String get discardChanges;
+
+  /// Discard changes dialog message
+  ///
+  /// In es, this message translates to:
+  /// **'Los cambios no guardados se perderán.'**
+  String get discardChangesMessage;
+
+  /// Discard button
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar'**
+  String get discard;
+
+  /// Keep editing button
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir editando'**
+  String get keepEditing;
+
+  /// History record count
+  ///
+  /// In es, this message translates to:
+  /// **'{count} registros'**
+  String recordCount(int count);
+
+  /// Search hint
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar comentarios...'**
+  String get searchComments;
+
+  /// No search results
+  ///
+  /// In es, this message translates to:
+  /// **'Sin resultados'**
+  String get noResults;
+
+  /// About section
+  ///
+  /// In es, this message translates to:
+  /// **'Acerca de'**
+  String get about;
+
+  /// Licenses button
+  ///
+  /// In es, this message translates to:
+  /// **'Licencias'**
+  String get licenses;
+
+  /// Version label
+  ///
+  /// In es, this message translates to:
+  /// **'Versión {version}'**
+  String versionLabel(String version);
+
+  /// Chart gesture hint
+  ///
+  /// In es, this message translates to:
+  /// **'Pellizca para ampliar'**
+  String get pinchToZoom;
+
+  /// Zoom fit screen tooltip
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustar a pantalla'**
+  String get zoomFitScreen;
+
+  /// Reset zoom tooltip
+  ///
+  /// In es, this message translates to:
+  /// **'Restablecer zoom'**
+  String get resetZoomTooltip;
+
+  /// More options tooltip
+  ///
+  /// In es, this message translates to:
+  /// **'Más opciones'**
+  String get moreOptions;
+
+  /// Import confirmation title
+  ///
+  /// In es, this message translates to:
+  /// **'¿Importar datos?'**
+  String get importConfirmTitle;
+
+  /// Import confirmation message
+  ///
+  /// In es, this message translates to:
+  /// **'Se importarán {count} repostajes del archivo.'**
+  String importConfirmMessage(int count);
+
+  /// Import button
+  ///
+  /// In es, this message translates to:
+  /// **'Importar'**
+  String get import;
+
+  /// Swipe to delete hint
+  ///
+  /// In es, this message translates to:
+  /// **'Desliza para eliminar'**
+  String get swipeHint;
 }
 
 class _AppLocalizationsDelegate
