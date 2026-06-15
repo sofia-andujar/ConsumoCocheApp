@@ -9,7 +9,7 @@ class AppLocalizationsCa extends AppLocalizations {
   AppLocalizationsCa([String locale = 'ca']) : super(locale);
 
   @override
-  String get appTitle => 'Consum Mazda 2 Sofia';
+  String get appTitle => 'Tank Up';
 
   @override
   String errorPrefix(String error) {

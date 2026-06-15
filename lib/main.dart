@@ -72,7 +72,7 @@ Future<void> main() async {
     runApp(
       ProviderScope(
         observers: kDebugMode ? [_DebugProviderObserver()] : [],
-        child: const GasApp(),
+        child: const TankUpApp(),
       ),
     );
   }, (Object error, StackTrace stack) {

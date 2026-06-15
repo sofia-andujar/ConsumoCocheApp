@@ -412,7 +412,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final locale = Localizations.localeOf(context).toString();
       final now = DateTime.now();
       final ts = '${now.year}${_pad(now.month)}${_pad(now.day)}_${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}';
-      final fileName = 'consumo_mazda_$ts.csv';
+      final fileName = 'tankup_$ts.csv';
 
       final csvContent = ExportService.generateCsvContent(refuels, locale: locale);
 

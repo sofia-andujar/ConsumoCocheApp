@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/refuel.dart';
+import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'chart_computations.dart';
 import 'chart_viewport.dart';
@@ -84,10 +85,11 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
     }
 
     final theme = Theme.of(context);
-    final consumptionColor = theme.colorScheme.primary;
-    final meanColor = theme.colorScheme.tertiary;
-    final ao5Color = theme.colorScheme.secondary;
     final isDark = theme.brightness == Brightness.dark;
+    final chartColors = AppTheme.chartColors(theme.colorScheme.primary, theme.brightness);
+    final consumptionColor = chartColors[0];
+    final meanColor = chartColors[1];
+    final ao5Color = chartColors[2];
 
     final consumptionValues = _consumptionValues();
     final cumulativeMeanValues = ChartComputations.cumulativeMean(consumptionValues);

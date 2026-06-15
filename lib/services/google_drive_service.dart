@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../utils/app_logger.dart';
 
 class GoogleDriveService {
-  static const _backupFileName = 'consumo_mazda_backup.csv';
+  static const _backupFileName = 'tankup_backup.csv';
   static const _mimeTypeCsv = 'text/csv';
 
   static drive.DriveApi _api(Map<String, String> authHeaders) {

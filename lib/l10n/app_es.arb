@@ -1,7 +1,7 @@
 {
   "@@locale": "es",
 
-  "appTitle": "Consumo Mazda 2 Sofía",
+  "appTitle": "Tank Up",
   "@appTitle": {"description": "App title shown in the home screen AppBar"},
 
   "errorPrefix": "Error: {error}",

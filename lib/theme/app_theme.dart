@@ -52,6 +52,24 @@ class AppTheme {
         .toColor();
   }
 
+  static List<Color> chartColors(Color accentColor, Brightness brightness) {
+    final hsl = HSLColor.fromColor(accentColor);
+    final baseHue = hsl.hue;
+    
+    final hue1 = baseHue;
+    final hue2 = (baseHue + 120) % 360;
+    final hue3 = (baseHue + 240) % 360;
+    
+    final saturation = brightness == Brightness.light ? 0.7 : 0.6;
+    final lightness = brightness == Brightness.light ? 0.45 : 0.65;
+    
+    return [
+      HSLColor.fromAHSL(1.0, hue1, saturation, lightness).toColor(),
+      HSLColor.fromAHSL(1.0, hue2, saturation, lightness).toColor(),
+      HSLColor.fromAHSL(1.0, hue3, saturation, lightness).toColor(),
+    ];
+  }
+
   static ThemeData lightTheme(Color accentColor) {
     final accentContainer = _darken(accentColor, .18);
     final accentBorder = accentColor.withAlpha(128);
@@ -63,8 +81,6 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: accentColor,
       brightness: Brightness.light,
-      secondary: pastelPink,
-      tertiary: pastelBlue,
     ).copyWith(
       primaryContainer: accentContainer,
       surface: pastelCream,
@@ -160,8 +176,6 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: accentColor,
       brightness: Brightness.dark,
-      secondary: pastelPink,
-      tertiary: pastelBlue,
     ).copyWith(
       primaryContainer: darkCard,
       surface: darkSurface,

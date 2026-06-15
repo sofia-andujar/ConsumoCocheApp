@@ -11,7 +11,7 @@ import 'package:tankup/app.dart';
 
 void main() {
   testWidgets('App loads without errors', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: GasApp()));
-    expect(find.text('Consumo Mazda 2 Sofía'), findsOneWidget);
+    await tester.pumpWidget(const ProviderScope(child: TankUpApp()));
+    expect(find.text('Tank Up'), findsOneWidget);
   });
 }

@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// App title shown in the home screen AppBar
   ///
   /// In es, this message translates to:
-  /// **'Consumo Mazda 2 Sofía'**
+  /// **'Tank Up'**
   String get appTitle;
 
   /// Generic error message

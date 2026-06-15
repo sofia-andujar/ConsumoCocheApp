@@ -8,8 +8,8 @@ import 'screens/home_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'theme/app_theme.dart';
-class GasApp extends ConsumerWidget {
-  const GasApp({super.key});
+class TankUpApp extends ConsumerWidget {
+  const TankUpApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,7 +22,7 @@ class GasApp extends ConsumerWidget {
     };
 
     return MaterialApp(
-      title: 'CONSUMO MAZDA 2 SOFIA',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
