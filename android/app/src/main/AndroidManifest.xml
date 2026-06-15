@@ -33,14 +33,12 @@
             android:value="2" />
         <!-- Google Sign-In OAuth client ID.
              Required for Google Sign-In to work on Android.
-             Generate one at https://console.cloud.google.com/apis/credentials
-             as "OAuth 2.0 Client ID" → "Web application".
-             Then uncomment and paste the ID below. -->
-        <!--
+             Set the webClientId from Google Cloud Console here.
+             The value must match the environment variable TANKUP_GOOGLE_WEB_CLIENT_ID
+             or the constant set in lib/data/google_config.dart. -->
         <meta-data
             android:name="com.google.android.gms.signin.CLIENT_ID"
-            android:value="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com" />
-        -->
+            android:value="55358591865-67c0qlq76sq0h8lpmduqork91ov6iatp.apps.googleusercontent.com" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

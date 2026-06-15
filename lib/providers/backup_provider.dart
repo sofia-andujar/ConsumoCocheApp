@@ -8,16 +8,41 @@ import 'refuel_provider.dart';
 
 enum BackupStatus { idle, backingUp, restoring, error }
 
+enum BackupError {
+  authRequired,
+  driveScopeRequired,
+  noData,
+  noBackupFound,
+  downloadFailed,
+  unknown,
+}
+
 class BackupState {
   final BackupStatus status;
+  final BackupError? error;
   final String? message;
   final DateTime? lastBackup;
 
   const BackupState({
     this.status = BackupStatus.idle,
+    this.error,
     this.message,
     this.lastBackup,
   });
+
+  BackupState copyWith({
+    BackupStatus? status,
+    BackupError? error,
+    String? message,
+    DateTime? lastBackup,
+  }) {
+    return BackupState(
+      status: status ?? this.status,
+      error: error,
+      message: message,
+      lastBackup: lastBackup ?? this.lastBackup,
+    );
+  }
 }
 
 final backupProvider = StateNotifierProvider<BackupNotifier, BackupState>((ref) {
@@ -35,19 +60,19 @@ class BackupNotifier extends StateNotifier<BackupState> {
     try {
       final scopeGranted = await _ref.read(authProvider.notifier).ensureDriveScope();
       if (!scopeGranted) {
-        state = const BackupState(status: BackupStatus.error, message: 'driveScopeRequired');
+        state = const BackupState(status: BackupStatus.error, error: BackupError.driveScopeRequired);
         return false;
       }
 
       final authHeaders = await _ref.read(authProvider.notifier).getAuthHeaders();
       if (authHeaders == null) {
-        state = const BackupState(status: BackupStatus.error, message: 'authRequired');
+        state = const BackupState(status: BackupStatus.error, error: BackupError.authRequired);
         return false;
       }
 
       final refuels = _ref.read(refuelListProvider).valueOrNull ?? [];
       if (refuels.isEmpty) {
-        state = const BackupState(status: BackupStatus.error, message: 'noData');
+        state = const BackupState(status: BackupStatus.error, error: BackupError.noData);
         return false;
       }
 
@@ -63,9 +88,13 @@ class BackupNotifier extends StateNotifier<BackupState> {
         lastBackup: DateTime.now(),
       );
       return true;
+    } on BackupException catch (e) {
+      final error = _mapBackupException(e);
+      state = BackupState(status: BackupStatus.error, error: error, message: e.code);
+      return false;
     } catch (e, st) {
       logError(e, st, tag: 'backup_provider');
-      state = BackupState(status: BackupStatus.error, message: e.toString());
+      state = BackupState(status: BackupStatus.error, error: BackupError.unknown, message: e.toString());
       return false;
     }
   }
@@ -76,13 +105,13 @@ class BackupNotifier extends StateNotifier<BackupState> {
     try {
       final scopeGranted = await _ref.read(authProvider.notifier).ensureDriveScope();
       if (!scopeGranted) {
-        state = const BackupState(status: BackupStatus.error, message: 'driveScopeRequired');
+        state = const BackupState(status: BackupStatus.error, error: BackupError.driveScopeRequired);
         return false;
       }
 
       final authHeaders = await _ref.read(authProvider.notifier).getAuthHeaders();
       if (authHeaders == null) {
-        state = const BackupState(status: BackupStatus.error, message: 'authRequired');
+        state = const BackupState(status: BackupStatus.error, error: BackupError.authRequired);
         return false;
       }
 
@@ -94,10 +123,29 @@ class BackupNotifier extends StateNotifier<BackupState> {
 
       state = BackupState(status: BackupStatus.idle, lastBackup: DateTime.now());
       return true;
+    } on BackupException catch (e) {
+      final error = _mapBackupException(e);
+      state = BackupState(status: BackupStatus.error, error: error, message: e.code);
+      return false;
     } catch (e, st) {
       logError(e, st, tag: 'backup_provider');
-      state = BackupState(status: BackupStatus.error, message: e.toString());
+      state = BackupState(status: BackupStatus.error, error: BackupError.unknown, message: e.toString());
       return false;
+    }
+  }
+
+  BackupError _mapBackupException(BackupException e) {
+    switch (e.code) {
+      case 'authRequired':
+        return BackupError.authRequired;
+      case 'driveScopeRequired':
+        return BackupError.driveScopeRequired;
+      case 'noBackupFound':
+        return BackupError.noBackupFound;
+      case 'downloadFailed':
+        return BackupError.downloadFailed;
+      default:
+        return BackupError.unknown;
     }
   }
 }

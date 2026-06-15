@@ -6,14 +6,69 @@ import '../utils/app_logger.dart';
 class GoogleDriveService {
   static const _backupFileName = 'tankup_backup.csv';
   static const _mimeTypeCsv = 'text/csv';
+  static const _maxRetries = 3;
+  static const _initialRetryDelay = Duration(milliseconds: 500);
 
-  static drive.DriveApi _api(Map<String, String> authHeaders) {
-    final client = _AuthClient(authHeaders, http.Client());
-    return drive.DriveApi(client);
+  static Future<void> uploadBackup(Map<String, String> authHeaders, File csvFile) async {
+    await _withRetry(() async {
+      final client = http.Client();
+      try {
+        final api = drive.DriveApi(_AuthClient(authHeaders, client));
+        final existingId = await _findBackupFileId(client, authHeaders);
+
+        final media = drive.Media(
+          csvFile.openRead(),
+          await csvFile.length(),
+          contentType: _mimeTypeCsv,
+        );
+
+        if (existingId != null) {
+          await api.files.update(
+            drive.File()..mimeType = _mimeTypeCsv,
+            existingId,
+            uploadMedia: media,
+          );
+        } else {
+          await api.files.create(
+            drive.File()
+              ..name = _backupFileName
+              ..mimeType = _mimeTypeCsv,
+            uploadMedia: media,
+          );
+        }
+      } finally {
+        client.close();
+      }
+    });
   }
 
-  static Future<String?> _findBackupFileId(Map<String, String> authHeaders) async {
-    final api = _api(authHeaders);
+  static Future<String> downloadBackupContent(Map<String, String> authHeaders) async {
+    return await _withRetry(() async {
+      final client = http.Client();
+      try {
+        final fileId = await _findBackupFileId(client, authHeaders);
+        if (fileId == null) {
+          throw const BackupException('noBackupFound');
+        }
+
+        final url = Uri.parse('https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
+        final request = http.Request('GET', url)..headers.addAll(authHeaders);
+        final streamedResponse = await client.send(request);
+        if (streamedResponse.statusCode == 200) {
+          return await streamedResponse.stream.bytesToString();
+        }
+        if (streamedResponse.statusCode == 401) {
+          throw const BackupException('authRequired');
+        }
+        throw BackupException('downloadFailed_${streamedResponse.statusCode}');
+      } finally {
+        client.close();
+      }
+    });
+  }
+
+  static Future<String?> _findBackupFileId(http.Client client, Map<String, String> authHeaders) async {
+    final api = drive.DriveApi(_AuthClient(authHeaders, client));
     try {
       final response = await api.files.list(
         q: "name='$_backupFileName' and trashed=false",
@@ -23,57 +78,45 @@ class GoogleDriveService {
         return response.files!.first.id;
       }
       return null;
-    } catch (e, st) {
-      logError(e, st, tag: 'google_drive');
+    } on drive.DetailedApiRequestError catch (e) {
+      if (e.status == 401) {
+        throw const BackupException('authRequired');
+      }
+      if (e.status == 403) {
+        throw const BackupException('driveScopeRequired');
+      }
       rethrow;
     }
   }
 
-  static Future<void> uploadBackup(Map<String, String> authHeaders, File csvFile) async {
-    final client = http.Client();
-    try {
-      final api = drive.DriveApi(_AuthClient(authHeaders, client));
-      final existingId = await _findBackupFileId(authHeaders);
+  static Future<T> _withRetry<T>(Future<T> Function() operation) async {
+    int attempts = 0;
+    Duration delay = _initialRetryDelay;
 
-      final media = drive.Media(csvFile.openRead(), await csvFile.length(), contentType: _mimeTypeCsv);
-
-      if (existingId != null) {
-        await api.files.update(
-          drive.File()..mimeType = _mimeTypeCsv,
-          existingId,
-          uploadMedia: media,
-        );
-      } else {
-        await api.files.create(
-          drive.File()
-            ..name = _backupFileName
-            ..mimeType = _mimeTypeCsv,
-          uploadMedia: media,
-        );
+    while (true) {
+      try {
+        return await operation();
+      } catch (e) {
+        final isRetryable = _isRetryable(e);
+        if (++attempts >= _maxRetries || !isRetryable) {
+          rethrow;
+        }
+        logError(e, null, tag: 'google_drive_retry');
+        await Future.delayed(delay);
+        delay *= 2;
       }
-    } finally {
-      client.close();
     }
   }
 
-  static Future<String> downloadBackupContent(Map<String, String> authHeaders) async {
-    final client = http.Client();
-    try {
-      final fileId = await _findBackupFileId(authHeaders);
-      if (fileId == null) {
-        throw StateError('No backup found in Google Drive');
-      }
-
-      final url = Uri.parse('https://www.googleapis.com/drive/v3/files/$fileId?alt=media');
-      final request = http.Request('GET', url)..headers.addAll(authHeaders);
-      final streamedResponse = await client.send(request);
-      if (streamedResponse.statusCode == 200) {
-        return await streamedResponse.stream.bytesToString();
-      }
-      throw HttpException('Failed to download backup (${streamedResponse.statusCode})');
-    } finally {
-      client.close();
+  static bool _isRetryable(Object error) {
+    if (error is SocketException) return true;
+    if (error is HttpException) return true;
+    if (error is drive.DetailedApiRequestError) {
+      final status = error.status;
+      return status == 429 || (status != null && status >= 500);
     }
+    if (error is BackupException) return false;
+    return true;
   }
 }
 
@@ -94,4 +137,12 @@ class _AuthClient extends http.BaseClient {
   void close() {
     _inner.close();
   }
+}
+
+class BackupException implements Exception {
+  final String code;
+  const BackupException(this.code);
+
+  @override
+  String toString() => code;
 }

@@ -446,16 +446,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         if (success) {
           SnackBarHelper.showSuccess(context, l10n.backupSuccess);
         } else {
-          final state = ref.read(backupProvider);
-          final msg = state.message;
-          if (msg == 'authRequired') {
-            SnackBarHelper.showWarning(context, l10n.signInRequired);
-          } else if (msg == 'driveScopeRequired') {
-            SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
-          } else if (msg == 'noData') {
-            SnackBarHelper.showWarning(context, l10n.noRefuelsRegistered);
-          } else {
-            SnackBarHelper.showError(context, l10n.backupError(msg ?? ''));
+          final backupState = ref.read(backupProvider);
+          switch (backupState.error) {
+            case BackupError.authRequired:
+              SnackBarHelper.showWarning(context, l10n.signInRequired);
+            case BackupError.driveScopeRequired:
+              SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
+            case BackupError.noData:
+              SnackBarHelper.showWarning(context, l10n.noRefuelsRegistered);
+            case BackupError.noBackupFound:
+            case BackupError.downloadFailed:
+            case BackupError.unknown:
+              SnackBarHelper.showError(context, l10n.backupError(backupState.message ?? ''));
+            case null:
+              break;
           }
         }
       }
@@ -500,16 +504,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         if (success) {
           SnackBarHelper.showSuccess(context, l10n.restoreSuccess);
         } else {
-          final state = ref.read(backupProvider);
-          final msg = state.message;
-          if (msg == 'authRequired') {
-            SnackBarHelper.showWarning(context, l10n.signInRequired);
-          } else if (msg == 'driveScopeRequired') {
-            SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
-          } else if (msg?.contains('No backup found') == true) {
-            SnackBarHelper.showWarning(context, l10n.noBackupFound);
-          } else {
-            SnackBarHelper.showError(context, l10n.restoreError(msg ?? ''));
+          final backupState = ref.read(backupProvider);
+          switch (backupState.error) {
+            case BackupError.authRequired:
+              SnackBarHelper.showWarning(context, l10n.signInRequired);
+            case BackupError.driveScopeRequired:
+              SnackBarHelper.showWarning(context, l10n.driveScopeRequired);
+            case BackupError.noBackupFound:
+              SnackBarHelper.showWarning(context, l10n.noBackupFound);
+            case BackupError.downloadFailed:
+            case BackupError.noData:
+            case BackupError.unknown:
+              SnackBarHelper.showError(context, l10n.restoreError(backupState.message ?? ''));
+            case null:
+              break;
           }
         }
       }
