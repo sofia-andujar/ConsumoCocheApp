@@ -123,17 +123,15 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                   child: Text(l10n.consumptionEvolution, style: theme.textTheme.titleMedium),
                 ),
               if (!widget.showTitle) const SizedBox(height: 6),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 400.0;
-                  final preferredH = constraints.maxWidth / 1.7;
-                  final chartHeight = preferredH.clamp(200.0, maxH * 0.8);
-                  final effectiveHeight = widget.maxChartHeight ?? chartHeight;
-                  final chartWidth = constraints.maxWidth;
+              Flexible(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final chartHeight = widget.maxChartHeight ?? constraints.maxHeight;
+                    final chartWidth = constraints.maxWidth;
 
-                  return SizedBox(
-                    height: effectiveHeight,
-                    child: LineChart(
+                    return SizedBox(
+                      height: chartHeight,
+                      child: LineChart(
                       _buildChartData(
                         showConsumption ? _spotsForValues(consumptionValues) : const [],
                         showMean ? _spotsForValues(cumulativeMeanValues) : const [],
@@ -153,6 +151,7 @@ class _ConsumptionChartState extends State<ConsumptionChart> {
                     ),
                   );
                 },
+              ),
               ),
               if (!widget.showTitle && !_showedGestureHint)
                 Padding(

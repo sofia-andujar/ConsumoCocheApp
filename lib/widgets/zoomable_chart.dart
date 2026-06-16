@@ -59,7 +59,6 @@ class _ZoomableChartState extends State<ZoomableChart> {
 
     Widget chart = LayoutBuilder(
       builder: (context, constraints) {
-        final safeHeight = math.max(widget.minChartHeight, constraints.maxHeight - 100.0);
         final maxDataX = math.max(0.0, (widget.refuels.length - 1).toDouble());
         final viewportWidth = maxDataX > 0 ? maxDataX / _xZoom : 0.0;
         final rawStart = _xOffset.clamp(0.0, math.max(0.0, maxDataX - viewportWidth));
@@ -71,7 +70,6 @@ class _ZoomableChartState extends State<ZoomableChart> {
           showTitle: false,
           xViewportStart: startX,
           xViewportEnd: endX,
-          maxChartHeight: safeHeight,
           onTap: widget.onTap,
         );
       },

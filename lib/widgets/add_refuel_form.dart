@@ -37,6 +37,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
   final _kilometerController = TextEditingController();
   final _litersController = TextEditingController();
   final _commentController = TextEditingController();
+  final _kmFocusNode = FocusNode();
+  final _litersFocusNode = FocusNode();
+  final _commentFocusNode = FocusNode();
   DateTime _selectedDate = DateTime.now();
 
   bool get isEditing => widget.refuel != null;
@@ -84,6 +87,9 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
     _kilometerController.dispose();
     _litersController.dispose();
     _commentController.dispose();
+    _kmFocusNode.dispose();
+    _litersFocusNode.dispose();
+    _commentFocusNode.dispose();
     super.dispose();
   }
 
@@ -214,26 +220,32 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
               Expanded(
                 child: TextFormField(
                   controller: _kilometerController,
+                  focusNode: _kmFocusNode,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: l10n.distanceKm,
                     border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   validator: (v) => _validateDistance(v, l10n),
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_litersFocusNode),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextFormField(
                   controller: _litersController,
+                  focusNode: _litersFocusNode,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: l10n.liters,
                     border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   validator: (v) => _validateLiters(v, l10n),
+                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_commentFocusNode),
                 ),
               ),
             ],
@@ -241,14 +253,17 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
           const SizedBox(height: 8),
           TextFormField(
             controller: _commentController,
+            focusNode: _commentFocusNode,
             keyboardType: TextInputType.text,
             maxLength: 200,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               labelText: l10n.commentOptional,
               border: const OutlineInputBorder(),
               isDense: true,
               hintText: l10n.addNote,
             ),
+            onFieldSubmitted: (_) => _save(),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -277,34 +292,43 @@ class AddRefuelFormState extends ConsumerState<AddRefuelForm> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _kilometerController,
+            focusNode: _kmFocusNode,
             autofocus: widget.autofocus,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: l10n.distanceKm,
               border: const OutlineInputBorder(),
             ),
             validator: (v) => _validateDistance(v, l10n),
+            onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_litersFocusNode),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _litersController,
+            focusNode: _litersFocusNode,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: l10n.litersRefueled,
               border: const OutlineInputBorder(),
             ),
             validator: (v) => _validateLiters(v, l10n),
+            onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_commentFocusNode),
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _commentController,
+            focusNode: _commentFocusNode,
             keyboardType: TextInputType.text,
             maxLength: 200,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               labelText: l10n.commentOptional,
               border: const OutlineInputBorder(),
               hintText: l10n.addNoteFull,
             ),
+            onFieldSubmitted: (_) => _save(),
           ),
           const SizedBox(height: 24),
           SizedBox(

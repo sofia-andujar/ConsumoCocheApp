@@ -69,79 +69,69 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme, AppLocalizations l10n) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        // ignore: use_build_context_synchronously
-        final ref = ProviderScope.containerOf(context);
-        await ref.read(refuelListProvider.notifier).refresh();
-      },
-      child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        children: [
-          const SizedBox(height: 48),
-          Icon(
-            Icons.local_gas_station_outlined,
-            size: 80,
-            color: theme.colorScheme.primary.withAlpha(100),
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      children: [
+        const SizedBox(height: 48),
+        Icon(
+          Icons.local_gas_station_outlined,
+          size: 80,
+          color: theme.colorScheme.primary.withAlpha(100),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.emptyStateTitle,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            color: theme.colorScheme.onSurface.withAlpha(180),
           ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.emptyStateTitle,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(180),
-            ),
-            textAlign: TextAlign.center,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.emptyStateSubtitle,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurface.withAlpha(120),
           ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.emptyStateSubtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(120),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          const _EmptyFormCard(),
-        ],
-      ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 32),
+        const _EmptyFormCard(),
+      ],
     );
   }
 
   Widget _buildBody(BuildContext context, ThemeData theme, double average, List<Refuel> sortedRefuels, AppLocalizations l10n, String locale, WidgetRef ref) {
-    return RefreshIndicator(
-      onRefresh: () => ref.read(refuelListProvider.notifier).refresh(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-        child: Column(
-          children: [
-            _buildAverageCard(context, theme, average, l10n, locale, sortedRefuels),
-            const SizedBox(height: 8),
-            _buildSummaryRow(context, theme, sortedRefuels, l10n, locale),
-            const SizedBox(height: 8),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final chartHeight = (constraints.maxWidth * 0.55).clamp(200.0, 280.0);
-                return SizedBox(
-                  height: chartHeight,
-                  child: ZoomableChart(
-                    refuels: sortedRefuels,
-                    interactive: false,
-                    onTap: (ctx) => Navigator.push(
-                      ctx,
-                      MaterialPageRoute(
-                        builder: (_) => ConsumptionChartFullScreen(refuels: sortedRefuels),
-                      ),
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        children: [
+          _buildAverageCard(context, theme, average, l10n, locale, sortedRefuels),
+          const SizedBox(height: 8),
+          _buildSummaryRow(context, theme, sortedRefuels, l10n, locale),
+          const SizedBox(height: 8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final chartHeight = (constraints.maxWidth * 0.65).clamp(240.0, 340.0);
+              return SizedBox(
+                height: chartHeight,
+                child: ZoomableChart(
+                  refuels: sortedRefuels,
+                  interactive: false,
+                  onTap: (ctx) => Navigator.push(
+                    ctx,
+                    MaterialPageRoute(
+                      builder: (_) => ConsumptionChartFullScreen(refuels: sortedRefuels),
                     ),
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            _buildFormCard(context, theme, l10n),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 8),
+          _buildFormCard(context, theme, l10n),
+        ],
       ),
     );
   }
@@ -183,8 +173,6 @@ class HomeScreen extends ConsumerWidget {
     final format = decimalFormat(locale);
     final totalKm = refuels.fold<double>(0, (s, r) => s + r.kilometers);
     final totalL = refuels.fold<double>(0, (s, r) => s + r.liters);
-    final best = refuels.reduce((a, b) => a.consumptionLPer100Km < b.consumptionLPer100Km ? a : b);
-    final worst = refuels.reduce((a, b) => a.consumptionLPer100Km > b.consumptionLPer100Km ? a : b);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -204,22 +192,6 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.totalLiters,
               value: '${format.format(totalL)} L',
               theme: theme,
-            ),
-            _SummaryDivider(theme: theme),
-            _SummaryItem(
-              icon: Icons.trending_down,
-              label: l10n.bestFillUp,
-              value: format.format(best.consumptionLPer100Km),
-              theme: theme,
-              valueColor: Colors.green.shade700,
-            ),
-            _SummaryDivider(theme: theme),
-            _SummaryItem(
-              icon: Icons.trending_up,
-              label: l10n.worstFillUp,
-              value: format.format(worst.consumptionLPer100Km),
-              theme: theme,
-              valueColor: Colors.deepOrange.shade700,
             ),
           ],
         ),
